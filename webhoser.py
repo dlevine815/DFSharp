@@ -3,8 +3,13 @@ import time
 import webhose
 from elasticsearch import Elasticsearch
 import json
+import cnfg
 
-webhose.config(token='9b442bf1-2767-427d-b9e7-df8e52ca6eb0')
+config = cnfg.load("/home/ubuntu/dfsharp/.webhoser_config")
+tok = config["token"]
+webhose.config(token=tok)
+
+
 
 mapping = {
 	"article": {
@@ -72,12 +77,13 @@ def hose_stream():
 
 def get_archive():
     # get response from webhose query "NBA DFS"
-    # response = unirest.get("https://webhose.io/search?token=9b442bf1-2767-427d-b9e7-df8e52ca6eb0&format=json&q=NBA%20DFS&ts=1455442050890",
-    # response = unirest.get("https://webhose.io/search?token=9b442bf1-2767-427d-b9e7-df8e52ca6eb0&format=json&ts=1456157125174&q=NBA+DFS",
-    # response = unirest.get("https://webhose.io/search?token=9b442bf1-2767-427d-b9e7-df8e52ca6eb0&format=json&ts=1456503719322&q=NBA+DFS",
-    # response = unirest.get("https://webhose.io/search?token=9b442bf1-2767-427d-b9e7-df8e52ca6eb0&format=json&ts=1456897517907&q=NBA+DFS",
-    # response = unirest.get("https://webhose.io/search?token=9b442bf1-2767-427d-b9e7-df8e52ca6eb0&format=json&ts=1457242057608&q=NBA+DFS",
-    response = unirest.get("https://webhose.io/search?token=9b442bf1-2767-427d-b9e7-df8e52ca6eb0&format=json&ts=1457589738327&q=NBA+DFS",
+    # response = unirest.get("https://webhose.io/search?token="+tok+"&format=json&q=NBA%20DFS&ts=1455442050890",
+    # response = unirest.get("https://webhose.io/search?token="+tok+"&format=json&ts=1456157125174&q=NBA+DFS",
+    # response = unirest.get("https://webhose.io/search?token="+tok+"&format=json&ts=1456503719322&q=NBA+DFS",
+    # response = unirest.get("https://webhose.io/search?token="+tok+"&format=json&ts=1456897517907&q=NBA+DFS",
+    # response = unirest.get("https://webhose.io/search?token="+tok+"&format=json&ts=1457242057608&q=NBA+DFS",
+    # response = unirest.get("https://webhose.io/search?token="+tok+"&format=json&ts=1457589738327&q=NBA+DFS",
+    response = unirest.get("https://webhose.io/search?token="+tok+"&format=json&q=NBA+DFS",
 
     headers={
     "Accept": "application/json"
@@ -89,7 +95,8 @@ def get_archive():
     
 
     for i in response.body['posts']:
-        es.index(index="webhose",
+	try:
+            es.index(index="webhose",
 		 doc_type="article",
 		 id=i['uuid'],
 		 op_type="create",
@@ -106,7 +113,10 @@ def get_archive():
 			"title": i['thread']['title'],
 			"title_full": i['thread']['title_full'],
 			"url": i['thread']['url']})
+	except:
+	    print('document already exists', i['thread']['title'])
+	    continue
 
 	
-# get_archive()
-hose_stream()
+get_archive()
+# hose_stream()
