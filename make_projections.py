@@ -21,7 +21,7 @@ from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 pd.set_option("display.max_rows",300)
 
-get_ipython().magic(u'matplotlib inline')
+# get_ipython().magic(u'matplotlib inline')
 
 
 # In[ ]:
@@ -53,10 +53,7 @@ def make_depth_dict():
     teams = options[1].find_all('option')[1:]
     i = 0
     for team in teams:
-        #temp = process.extractOne(team.text, team_dict.keys())
         temp = process.extractOne(team.text, team_names)
-        #key = team_dict[temp[0]]
-        #keys.append(key)
         keys.append(temp[0])
     data = soup.find_all('table', class_="basketball")
     depth_dict = {}
@@ -173,7 +170,7 @@ team_names = team_walk.team_long.tolist()
 # In[6]:
 
 # load latest model
-path = '/Users/shermanash/ds/dfsharp_test/latest_model.p'
+path = '/home/ubuntu/dfsharp/latest_model.p'
 model = pickle.load( open( path, "rb" ) )
 
 
@@ -182,7 +179,8 @@ model = pickle.load( open( path, "rb" ) )
 # get DF of todays players
 today = datetime.today()
 filename = today.strftime('%Y%m%d')+'_players.csv'
-todays_players = pd.read_csv(filename)
+path = '/home/ubuntu/dfsharp/csvs/'+filename
+todays_players = pd.read_csv(path)
 
 
 # In[23]:
@@ -196,13 +194,8 @@ today_proj = project_today(model, today_df)
 # *format for csv
 # hio = today_proj[['dk_pos','name','dk_sal','Start','DK_Proj']].to_csv('20160320_opt.csv', index=False)
 
+# just import the optimizer idiot
 
-# In[24]:
-
-today_proj
-
-
-# In[ ]:
 
 '''
 

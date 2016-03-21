@@ -5,7 +5,7 @@
 
 import pandas as pd
 import matplotlib as plt
-import seaborn as sns
+# import seaborn as sns
 import numpy as np
 from patsy import dmatrices
 import statsmodels.api as sm
@@ -181,8 +181,11 @@ df = add_stats(df)
 # 3) pull out todays frame
 today = datetime.today()
 todays_players = df[df['index'] == today.strftime('%Y%m%d')]
-todays_players.to_csv(today.strftime('%Y%m%d')+'_players.csv')
+csvpath = '/home/ubuntu/dfsharp/daily_csvs/'+today.strftime('%Y%m%d')+'_players.csv')
+todays_players.to_csv(csvpath)
 
+# 4) train and save model
+train_save_model(df, 10000)
 
 # 5) assess yesterday's predictions (OPT)
 # yest = assess_yesterday(model, df)
