@@ -19,14 +19,17 @@ from collections import defaultdict
 from collections import OrderedDict
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
+import cnfg
 pd.set_option("display.max_rows",300)
 
-get_ipython().magic(u'matplotlib inline')
+#get_ipython().magic(u'matplotlib inline')
 
 
 # In[2]:
 
 
+config = cnfg.load("/home/ubuntu/dfsharp/.rotoguru_config")
+url = config["url"]
 
 
 # In[3]:
@@ -34,7 +37,7 @@ get_ipython().magic(u'matplotlib inline')
 def daily_download():
     # read in the user and key from config file   
     # read in daily update of season long box scores
-    df = pd.read_csv('http://rotoguru1.com/cgi-bin/nba-dhd-2016.pl?user=shermanash&key=S9623538541&v=2', sep=':')
+    df = pd.read_csv(url, sep=':')
     
     # format date as index, reset and sort old to new
     df.index = [pd.to_datetime(str(x), format='%Y%m%d') for x in df.Date]
@@ -138,7 +141,7 @@ def train_save_model(df, num=0):
     model = sm.OLS(Y_train, X_train)
     results = model.fit()
     print(results.summary())
-    path = '/Users/shermanash/ds/dfsharp_test/latest_model.p'
+    path = '/home/ubuntu/dfsharp/latest_model.p'
     pickle.dump(results, open(path, "wb") )
     return(results)
 
