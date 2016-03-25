@@ -181,7 +181,7 @@ df = add_stats(df)
 # 3) pull out todays frame
 today = datetime.today()
 todays_players = df[df['index'] == today.strftime('%Y%m%d')]
-csvpath = '/home/ubuntu/dfsharp/daily_csvs/'+today.strftime('%Y%m%d')+'_players.csv')
+csvpath = '/home/ubuntu/dfsharp/csvs/'+today.strftime('%Y%m%d')+'_players.csv'
 todays_players.to_csv(csvpath)
 
 # 4) train and save model

@@ -8,6 +8,7 @@ See http://openopt.org/KSP for more details
 from openopt import *
 import csv
 from pprint import pprint
+from datetime import datetime
 
 
 def load_projections(projections_file):
@@ -21,15 +22,20 @@ def load_projections(projections_file):
 
 def optimizer(projections=None, site="DraftKings"):
 
-    adjustments = {'Kevin Martin': 0.0, #injury
-                   'Derrick Rose': 0.0, #crap player
-                   'Stephen Curry': 0.0
+    adjustments = {'Anthony Davis': 0.0, #injury
+                   #'Willie Reed': 0.0, #crap player
+		   #'Larry Nance': 0.0,
+		   #'Brook Lopez': 0.0,
+		   #'Thomas Robinson': 0.0,
+                   #'P.J. Tucker': 0.0
                   }
 
     items = []
     player_ids = {}
+    today = datetime.today()
+    path = '/home/ubuntu/dfsharp/opt_csvs/'+today.strftime('%Y%m%d')+'_opt.csv'
 
-    with open('20160320_opt.csv', 'r') as csvfile:
+    with open(path, 'r') as csvfile:
         reader = csv.reader(csvfile)
         index = 0
         for row in reader:
@@ -42,7 +48,7 @@ def optimizer(projections=None, site="DraftKings"):
                         'PF': 1 if row[0] == 'PF' else 0,
                         'C': 1 if row[0] == 'C' else 0,
                         'name': row[1],
-                        'salary': int(row[2]),
+                        'salary': float(row[2]),
                         'fpts': float(row[4]) if row[1] not in adjustments.keys() else adjustments[row[1]]
                         }
                 vals['PGSGC'] = vals['PG'] + vals['SG'] + vals['C']
@@ -78,6 +84,7 @@ def optimizer(projections=None, site="DraftKings"):
                                   # values['mass'] + 4*values['volume'] < 100
     objective = 'fpts'
     # we could use lambda-func, e.g. 
+
     # objective = lambda val: 5*value['cost'] - 2*value['volume'] - 5*value['mass'] + 3*val['nItems']
     p = KSP(objective, items, goal = 'max', constraints = constraints) 
     r = p.solve('glpk', iprint = 0) # requires cvxopt and glpk installed, see http://openopt.org/KSP for other solvers
