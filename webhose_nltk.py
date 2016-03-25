@@ -129,7 +129,7 @@ def get_all_news():
         except:
             pass
             
-    finalframe = finalframe.sort('published', ascending=False)
+    #finalframe = finalframe.sort('published', ascending=False)
     return(finalframe)
 
 
@@ -139,7 +139,7 @@ def get_all_news():
 
 
 # inserts df into elastic search 
-def insert_elastic(df):
+def insert_elastic():
 
     mapping = {
         "article": {
@@ -161,9 +161,9 @@ def insert_elastic(df):
                    }
           }
 
-    es = ElasticSearch()
-    es.indices.create("playernews")
-    es.indices.put_mapping(index="playernews", doc_type="article", body=mapping)
+    es = Elasticsearch()
+    #es.indices.create("playernews")
+    #es.indices.put_mapping(index="playernews", doc_type="article", body=mapping)
     df = get_all_news()
 
 
@@ -194,3 +194,4 @@ def insert_elastic(df):
 
 
 
+insert_elastic()
