@@ -58,6 +58,9 @@ def daily_download():
     # only train on players who played > 0 minutes (keep today's players in frame)
     today = datetime.today()
     df = df[(df['Minutes'] > 0) | (df['index'] == today.strftime('%Y%m%d'))]
+
+
+
     
     return(df)
 
@@ -117,6 +120,9 @@ def add_stats(df):
     # create standard dev and max columns
     df['dk_std_90_days'] = df.apply(dk_std_90_days, axis=1)
     df['dk_max_30_days'] = df.apply(dk_max_30_days, axis=1)
+
+
+    #df.to_csv('/home/ubuntu/dfsharp/gamelogs/20160326_gamelogs.csv')
     
     return(df)
 
@@ -177,7 +183,6 @@ df = daily_download()
 
 # 2) add stats
 df = add_stats(df)
-
 # 3) pull out todays frame
 today = datetime.today()
 todays_players = df[df['index'] == today.strftime('%Y%m%d')]
@@ -192,4 +197,3 @@ train_save_model(df, 10000)
 
 # 1-5 happen daily at 1 PM: the today's players CSV is saved to CSV, and the model is pickled to EC2
 # yesterdays projections are pushed to elasticsearch once daily on their own index
-

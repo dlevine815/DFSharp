@@ -52,6 +52,7 @@ class TweetStreamListener(StreamListener):
             # add text and sentiment info to elasticsearch
             es.index(index="nlp2",
                      doc_type="tweet",
+		     id=dict_data["id"],
                      body={#"screen_name": dict_data["user"]["screen_name"],
                            # "@timestamp": dict_data["created_at"],
                            "id": dict_data["id"],
