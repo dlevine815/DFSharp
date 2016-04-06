@@ -1,8 +1,12 @@
+#!/bin/env python
 import pandas as pd
 from datetime import datetime
 from elasticsearch import Elasticsearch
 
-def InsertProj():
+
+#df = pd.read_csv('/home/ubuntu/dfsharp/opt_csvs/'+date.strftime('%Y%m%d')+'_opt.csv')
+
+def InsertProj(df, indexer="projections"):
 
     mapping = {
 	"dataframe": {
@@ -10,7 +14,7 @@ def InsertProj():
 			#"GameID": {"type": "string", "index": "not_analyzed"},
 			#"gametime" : {"type" : 
 			"numpos" : {"type": "string"},
-			"name" : {"type": "string", "index": "not_analyzed"},
+			"player" : {"type": "string", "index": "not_analyzed"},
 			"dk_sal" : {"type": "float"},
 			"Team" : {"type": "string"},
 			"Start" : {"type": "boolean"},
@@ -22,24 +26,24 @@ def InsertProj():
 			"home": {"type": "string"},
 			"opppts_avg": {"type": "float"},
 			"status" : {"type": "string", "index": "not_analyzed"},
-			"timestamp": {"type": "date"}
+			"timestamp": {"type": "date"},
+			"ownership": {"type": "float"}
 				}
 			}
 		}
 
     es = Elasticsearch()
-    es.indices.delete(index="projections", ignore=[400, 404])
-    es.indices.create("projections", ignore=400)
-    es.indices.put_mapping(index="projections", doc_type="dataframe", body=mapping)
+    es.indices.delete(index=indexer, ignore=[400, 404])
+    es.indices.create(indexer, ignore=400)
+    es.indices.put_mapping(index=indexer, doc_type="dataframe", body=mapping)
     date = datetime.today()
     time = datetime.utcnow()
-    df = pd.read_csv('/home/ubuntu/dfsharp/opt_csvs/'+date.strftime('%Y%m%d')+'_opt.csv')
 
     for index, row in df.iterrows():
-	es.index(index="projections",
+	es.index(index=indexer,
 		 doc_type="dataframe",
 		 body = { "numpos" : row['numpos'],
-			  "name" : row['name'],
+			  "player" : row['name'],
 			  "dk_sal" : row['dk_sal'],
 			  "Team" : row['Team'],
 			  "Start" : row['Start'],
@@ -51,11 +55,14 @@ def InsertProj():
 			  "home" : row['home'],
 			  "opppts_avg" : row['opppts_avg'],
 			  "status" : row['status'],
+			  "ownership": row['ownership'],
 			  "timestamp": time})
-		
 
 
-InsertProj()
+#def InsertOptimal():
+
+
+#InsertProj()
 
 
 

@@ -5,10 +5,20 @@ requires FuncDesigner installed.
 For some solvers limitations on time, cputime, "enough" value, basic GUI features are available.
 See http://openopt.org/KSP for more details
 '''
+
+import pandas as pd
+
 from openopt import *
+import math
 import csv
 from pprint import pprint
-from datetime import datetime
+import datetime
+from proj_elastic import InsertProj
+#from datetime import datetime, timedelta
+
+
+import objgraph
+import gc
 
 
 def load_projections(projections_file):
@@ -20,26 +30,26 @@ def load_projections(projections_file):
     return projections
         
 
-def optimizer(projections=None, site="DraftKings"):
+def optimizer(locks=[], exclusions=[], delta=0):
 
-    adjustments = {'Anthony Davis': 0.0, #injury
-                   #'Willie Reed': 0.0, #crap player
-		   #'Larry Nance': 0.0,
-		   #'Brook Lopez': 0.0,
-		   #'Thomas Robinson': 0.0,
-                   #'P.J. Tucker': 0.0
-                  }
+    adjustments={}
 
     items = []
     player_ids = {}
-    today = datetime.today()
+    today = datetime.datetime.today() - datetime.timedelta(hours=4)
     path = '/home/ubuntu/dfsharp/opt_csvs/'+today.strftime('%Y%m%d')+'_opt.csv'
+    #path = '/home/ubuntu/dfsharp/opt_csvs/20160329_opt.csv'
+
+    abblist = ['bkn', 'bos', 'cha', 'chi', 'cle', 'dal', 'den', 'det', 'hou',
+       'ind', 'lac', 'lal', 'mem', 'mia', 'mil', 'min', 'nor', 'nyk',
+       'okc', 'orl', 'phi', 'pho', 'por', 'sac', 'sas', 'tor', 'uta',
+       'was', 'atl', 'gsw']
 
     with open(path, 'r') as csvfile:
         reader = csv.reader(csvfile)
         index = 0
         for row in reader:
-            if index != 0:
+            if (index != 0) and (row[1] not in exclusions) and (row[11] not in exclusions):
                 vals = { 
                         'id': index-1,
                         'PG': 1 if row[0] == 'PG' else 0,
@@ -49,12 +59,18 @@ def optimizer(projections=None, site="DraftKings"):
                         'C': 1 if row[0] == 'C' else 0,
                         'name': row[1],
                         'salary': float(row[2]),
-                        'fpts': float(row[4]) if row[1] not in adjustments.keys() else adjustments[row[1]]
+                        'fpts': float(row[4]) if row[1] not in adjustments.keys() else adjustments[row[1]],
+                        'min_proj': float(row[8]) if row[1] not in adjustments.keys() else adjustments[row[1]],
+                        'dk_per_min': float(row[9]) if row[1] not in adjustments.keys() else adjustments[row[1]],
+			'lock': 1 if row[1] in locks else 0,
+			'ownership': float(row[13]) if row[1] not in adjustments.keys() else adjustments[row[1]]
                         }
+		for team in abblist:
+		    vals[team] = 1 if row[11] == team else 0
                 vals['PGSGC'] = vals['PG'] + vals['SG'] + vals['C']
                 vals['PFSFC'] = vals['PF'] + vals['SF'] + vals['C']
-                if projections != None:
-                    vals['fpts'] = projections[vals['name']]
+                #if projections != None:
+                #    vals['fpts'] = projections[vals['name']]
                 items.append(vals)
             index += 1
 
@@ -62,9 +78,16 @@ def optimizer(projections=None, site="DraftKings"):
         for i in range(len(items)):
             item['id%d' % i] = float(item['id'] == i)
 
+
+ 
+
     constraints = lambda values: (
+			      values['lock'] == len(locks),
                               values['salary'] < 50000, 
+			      values['salary'] > 49500,
                               values['nItems'] == 8, 
+			      values['ind'] <= 2,
+			      #values['gsw'] <= 2,
                               values['PG'] >= 1,
                               values['PG'] <= 2,
                               values['SG'] >= 1,
@@ -73,18 +96,22 @@ def optimizer(projections=None, site="DraftKings"):
                               values['SF'] <= 2,
                               values['PF'] >= 1,
                               values['PF'] <= 2,
+			      values['C'] >= 1,
                               values['PFSFC'] >= 4,
                               values['PFSFC'] <= 5,
                               values['PGSGC'] >= 4,
                               values['PGSGC'] <= 5,
                              ) + tuple([values['id%d'% i] <= 1 for i in range(len(items))])
+			       #+ tuple([values['id%d'% i] == 1 for i in range(len(locks))]) 
 
 
                                   # we could use lambda-func, e,g.
                                   # values['mass'] + 4*values['volume'] < 100
-    objective = 'fpts'
+    #objective = 'ownership'
     # we could use lambda-func, e.g. 
-
+    #objective = lambda val: .01*val['min_proj']+val['fpts']
+    #objective = lambda val: -.5*val['ownership']+val['fpts']
+    objective = lambda val: val['fpts']+ delta*val['ownership']
     # objective = lambda val: 5*value['cost'] - 2*value['volume'] - 5*value['mass'] + 3*val['nItems']
     p = KSP(objective, items, goal = 'max', constraints = constraints) 
     r = p.solve('glpk', iprint = 0) # requires cvxopt and glpk installed, see http://openopt.org/KSP for other solvers
@@ -99,5 +126,19 @@ def optimizer(projections=None, site="DraftKings"):
     objFunValue: 27.389749 (feasible, MaxResidual = 0)
     '''
     print(r.xf) 
+    playerlist = r.xf
 
-optimizer()
+    # r.xf is a list of players- we will merge their info back and return a DF instead
+    df = pd.read_csv(path)
+    df2 = df[df['name'].isin(playerlist)]
+    #print(df2)
+
+    InsertProj(df2, indexer="latestlineup")
+
+    #gc.collect()
+    #print(objgraph.show_most_common_types())
+    
+    return(playerlist)
+
+#optimizer(locks=['Kobe Bryant','Avery Bray'])
+

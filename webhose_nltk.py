@@ -30,7 +30,7 @@ def get_archive():
 # In[4]:
 
 def get_playerlist():
-    df = pd.read_csv('/Users/shermanash/ds/metis/nyc16_ds6/playernames.csv')
+    df = pd.read_csv('/home/ubuntu/dfsharp/playernames.csv')
     playerlist = df['allplayers.text']
     
     plist = []
@@ -145,6 +145,7 @@ def insert_elastic():
         "article": {
                 "properties": {
                         "author": {"type": "string", "index": "not_analyzed"},
+			"player": {"type": "string", "index": "analyzed"},
                         "crawled": {"type": "date"},
                         "news": {"type": "string", "index": "analyzed"},
                         "sentiment": {"type" : "float"},
@@ -163,7 +164,7 @@ def insert_elastic():
 
     es = Elasticsearch()
     #es.indices.create("playernews")
-    #es.indices.put_mapping(index="playernews", doc_type="article", body=mapping)
+    es.indices.put_mapping(index="playernews", doc_type="article", body=mapping)
     df = get_all_news()
 
 
@@ -176,6 +177,7 @@ def insert_elastic():
                  id=i['id'],
                  op_type="create",
                  body={ "author" : i['author'],
+			"player" : i['player'],
                         "crawled": i['crawled'],
                         "published": i['published'],
                         "news": i['news'],
