@@ -1,0 +1,569 @@
+ * Running on http://0.0.0.0:8080/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger pin code: 273-310-900
+65.209.60.146 - - [30/Mar/2016 21:07:28] "GET / HTTP/1.1" 200 -
+/usr/local/lib/python2.7/dist-packages/numpy/core/fromnumeric.py:2645: VisibleDeprecationWarning: `rank` is deprecated; use the `ndim` attribute or function instead. To find the rank of a matrix see `numpy.linalg.matrix_rank`.
+  VisibleDeprecationWarning)
+HOME PAGE GET
+HOME PAGE POST
+Initialization: Time = 1.6 CPUTime = 1.6
+
+------------------------- OpenOpt 0.5625 -------------------------
+problem: unnamed   type: MILP    goal: max
+solver: glpk
+  iter  objFunVal  log10(maxResidual)  
+    0  0.000e+00               4.69 
+GLPK Integer Optimizer, v4.52
+795 rows, 259 columns, 2636 non-zeros
+259 integer variables, none of which are binary
+Preprocessing...
+5 hidden covering inequaliti(es) were detected
+16 rows, 259 columns, 1859 non-zeros
+259 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  1.030e+04  ratio =  1.030e+04
+GM: min|aij| =  7.346e-01  max|aij| =  1.361e+00  ratio =  1.853e+00
+EQ: min|aij| =  5.397e-01  max|aij| =  1.000e+00  ratio =  1.853e+00
+2N: min|aij| =  2.500e-01  max|aij| =  1.221e+00  ratio =  4.883e+00
+Constructing initial basis...
+Size of triangular part is 16
+Solving LP relaxation...
+GLPK Simplex Optimizer, v4.52
+16 rows, 259 columns, 1859 non-zeros
+      0: obj =  -7.609939019e+01  infeas =  1.861e+01 (0)
+*    16: obj =  -6.342898752e+02  infeas =  0.000e+00 (0)
+*    34: obj =  -2.038569843e+03  infeas =  1.972e-31 (0)
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
++    34: mip =     not found yet >=              -inf        (1; 0)
+Solution found by heuristic: -2037.7301901
++    36: mip =  -2.037730190e+03 >=     tree is empty   0.0% (0; 1)
+INTEGER OPTIMAL SOLUTION FOUND
+65.209.60.146 - - [30/Mar/2016 21:08:31] "POST / HTTP/1.1" 200 -
+65.209.60.146 - - [30/Mar/2016 21:09:23] "GET / HTTP/1.1" 200 -
+65.209.60.146 - - [30/Mar/2016 21:09:23] "GET /static/style2.css HTTP/1.1" 200 -
+65.209.60.146 - - [30/Mar/2016 21:09:25] "GET /favicon.ico HTTP/1.1" 404 -
+ * Running on http://0.0.0.0:8080/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger pin code: 273-310-900
+65.209.60.146 - - [31/Mar/2016 15:02:32] "GET / HTTP/1.1" 200 -
+65.209.60.146 - - [31/Mar/2016 15:05:14] "GET / HTTP/1.1" 200 -
+65.209.60.146 - - [31/Mar/2016 15:05:14] "GET /static/style2.css HTTP/1.1" 200 -
+65.209.60.146 - - [31/Mar/2016 15:23:01] "GET / HTTP/1.1" 200 -
+65.209.60.146 - - [31/Mar/2016 15:23:01] "GET /static/style2.css HTTP/1.1" 200 -
+/usr/local/lib/python2.7/dist-packages/numpy/core/fromnumeric.py:2645: VisibleDeprecationWarning: `rank` is deprecated; use the `ndim` attribute or function instead. To find the rank of a matrix see `numpy.linalg.matrix_rank`.
+  VisibleDeprecationWarning)
+HOME PAGE GET
+HOME PAGE GET
+HOME PAGE GET
+HOME PAGE POST
+
+------------------------- OpenOpt 0.5625 -------------------------
+problem: unnamed   type: MILP    goal: max
+solver: glpk
+  iter  objFunVal  log10(maxResidual)  
+    0  0.000e+00               4.69 
+GLPK Integer Optimizer, v4.52
+540 rows, 174 columns, 1785 non-zeros
+174 integer variables, none of which are binary
+Preprocessing...
+5 hidden covering inequaliti(es) were detected
+17 rows, 174 columns, 1263 non-zeros
+174 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  1.060e+04  ratio =  1.060e+04
+GM: min|aij| =  7.294e-01  max|aij| =  1.371e+00  ratio =  1.880e+00
+EQ: min|aij| =  5.320e-01  max|aij| =  1.000e+00  ratio =  1.880e+00
+2N: min|aij| =  2.500e-01  max|aij| =  1.233e+00  ratio =  4.932e+00
+Constructing initial basis...
+Size of triangular part is 17
+Solving LP relaxation...
+GLPK Simplex Optimizer, v4.52
+17 rows, 174 columns, 1263 non-zeros
+      0: obj =   0.000000000e+00  infeas =  1.511e+01 (0)
+*    14: obj =  -3.108090616e+02  infeas =  0.000e+00 (0)
+*    37: obj =  -2.241238461e+03  infeas =  0.000e+00 (0)
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
++    37: mip =     not found yet >=              -inf        (1; 0)
+Solution found by heuristic: -1919.7882789
++    82: >>>>>  -2.181210202e+03 >=  -2.228929916e+03   2.2% (13; 1)
++   106: mip =  -2.181210202e+03 >=     tree is empty   0.0% (0; 29)
+INTEGER OPTIMAL SOLUTION FOUND
+65.209.60.146 - - [31/Mar/2016 15:28:07] "POST / HTTP/1.1" 200 -
+    1  0.000e+00            -100.00 
+istop: 1000 (optimal)
+Solver:   Time Elapsed = 0.02 	CPU Time Elapsed = 0.02
+objFuncValue: 2181.2102 (feasible, MaxResidual = 0)
+function                   180499
+tuple                      167771
+cell                       133665
+set                        132507
+list                       69394
+dict                       38567
+instancemethod             32927
+oofun                      32702
+builtin_function_or_method 3067
+weakref                    2470
+None
+HOME PAGE POST
+Initialization: Time = 0.9 CPUTime = 1.0
+
+------------------------- OpenOpt 0.5625 -------------------------
+problem: unnamed   type: MILP    goal: max
+solver: glpk
+  iter  objFunVal  log10(maxResidual)  
+    0  0.000e+00               4.69 
+GLPK Integer Optimizer, v4.52
+540 rows, 174 columns, 1785 non-zeros
+174 integer variables, none of which are binary
+Preprocessing...
+5 hidden covering inequaliti(es) were detected
+17 rows, 174 columns, 1263 non-zeros
+174 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  1.060e+04  ratio =  1.060e+04
+GM: min|aij| =  7.294e-01  max|aij| =  1.371e+00  ratio =  1.880e+00
+EQ: min|aij| =  5.320e-01  max|aij| =  1.000e+00  ratio =  1.880e+00
+2N: min|aij| =  2.500e-01  max|aij| =  1.233e+00  ratio =  4.932e+00
+Constructing initial basis...
+Size of triangular part is 17
+Solving LP relaxation...
+GLPK Simplex Optimizer, v4.52
+17 rows, 174 columns, 1263 non-zeros
+      0: obj =   0.000000000e+00  infeas =  1.511e+01 (0)
+*    14: obj =  -3.108090616e+02  infeas =  0.000e+00 (0)
+*    37: obj =  -2.241238461e+03  infeas =  0.000e+00 (0)
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
++    37: mip =     not found yet >=              -inf        (1; 0)
+Solution found by heuristic: -1919.7882789
++    82: >>>>>  -2.181210202e+03 >=  -2.228929916e+03   2.2% (13; 1)
++   106: mip =  -2.181210202e+03 >=     tree is empty   0.0% (0; 29)
+INTEGER OPTIMAL SOLUTION FOUND
+65.209.60.146 - - [31/Mar/2016 15:28:11] "POST / HTTP/1.1" 200 -
+179.159.13.115 - - [31/Mar/2016 15:39:13] "GET / HTTP/1.1" 200 -
+179.159.13.115 - - [31/Mar/2016 15:39:14] "GET /static/style2.css HTTP/1.1" 200 -
+187.62.49.19 - - [31/Mar/2016 15:55:46] "GET / HTTP/1.1" 200 -
+187.62.49.19 - - [31/Mar/2016 15:55:46] "GET /static/style2.css HTTP/1.1" 200 -
+49.173.7.118 - - [31/Mar/2016 16:38:33] "GET /cgi-bin/authLogin.cgi HTTP/1.1" 404 -
+177.206.208.120 - - [31/Mar/2016 17:34:25] "GET / HTTP/1.1" 200 -
+177.206.208.120 - - [31/Mar/2016 17:34:25] "GET /static/style2.css HTTP/1.1" 200 -
+65.209.60.146 - - [31/Mar/2016 17:48:08] "GET / HTTP/1.1" 200 -
+65.209.60.146 - - [31/Mar/2016 17:48:08] "GET /static/style2.css HTTP/1.1" 200 -
+70.214.71.247 - - [31/Mar/2016 17:49:10] "GET / HTTP/1.1" 200 -
+70.214.71.247 - - [31/Mar/2016 17:49:10] "GET /static/style2.css HTTP/1.1" 200 -
+    1  0.000e+00            -100.00 
+istop: 1000 (optimal)
+Solver:   Time Elapsed = 0.02 	CPU Time Elapsed = 0.02
+objFuncValue: 2181.2102 (feasible, MaxResidual = 0)
+function                   342389
+tuple                      330199
+cell                       264853
+set                        264571
+list                       135163
+dict                       72558
+oofun                      65404
+instancemethod             65248
+builtin_function_or_method 3067
+weakref                    2472
+None
+HOME PAGE GET
+HOME PAGE GET
+HOME PAGE GET
+HOME PAGE GET
+HOME PAGE GET
+HOME PAGE POST
+
+------------------------- OpenOpt 0.5625 -------------------------
+problem: unnamed   type: MILP    goal: max
+solver: glpk
+  iter  objFunVal  log10(maxResidual)  
+    0  0.000e+00               4.69 
+GLPK Integer Optimizer, v4.52
+540 rows, 174 columns, 1785 non-zeros
+174 integer variables, none of which are binary
+Preprocessing...
+5 hidden covering inequaliti(es) were detected
+17 rows, 174 columns, 1263 non-zeros
+174 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  1.060e+04  ratio =  1.060e+04
+GM: min|aij| =  7.294e-01  max|aij| =  1.371e+00  ratio =  1.880e+00
+EQ: min|aij| =  5.320e-01  max|aij| =  1.000e+00  ratio =  1.880e+00
+2N: min|aij| =  2.500e-01  max|aij| =  1.233e+00  ratio =  4.932e+00
+Constructing initial basis...
+Size of triangular part is 17
+Solving LP relaxation...
+GLPK Simplex Optimizer, v4.52
+17 rows, 174 columns, 1263 non-zeros
+      0: obj =   0.000000000e+00  infeas =  1.511e+01 (0)
+*    14: obj =  -2.693090616e+02  infeas =  0.000e+00 (0)
+*    37: obj =  -2.121210202e+03  infeas =  1.284e-16 (0)
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
++    37: mip =     not found yet >=              -inf        (1; 0)
++    37: >>>>>  -2.121210202e+03 >=  -2.121210202e+03   0.0% (1; 0)
++    37: mip =  -2.121210202e+03 >=     tree is empty   0.0% (0; 1)
+INTEGER OPTIMAL SOLUTION FOUND
+65.209.60.146 - - [31/Mar/2016 17:49:20] "POST / HTTP/1.1" 200 -
+ * Running on http://0.0.0.0:8080/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger pin code: 273-310-900
+65.209.60.146 - - [31/Mar/2016 17:54:01] "GET / HTTP/1.1" 200 -
+65.209.60.146 - - [31/Mar/2016 17:57:08] "GET / HTTP/1.1" 200 -
+65.209.60.146 - - [31/Mar/2016 19:48:37] "GET / HTTP/1.1" 200 -
+91.196.50.33 - - [31/Mar/2016 19:52:37] "GET http://testp3.pospr.waw.pl/testproxy.php HTTP/1.1" 404 -
+65.209.60.146 - - [31/Mar/2016 20:05:56] "GET / HTTP/1.1" 200 -
+65.209.60.146 - - [31/Mar/2016 20:05:56] "GET /static/style2.css HTTP/1.1" 200 -
+107.107.62.171 - - [31/Mar/2016 21:50:56] "GET / HTTP/1.1" 200 -
+107.107.62.171 - - [31/Mar/2016 21:50:56] "GET /static/style2.css HTTP/1.1" 200 -
+70.199.65.38 - - [31/Mar/2016 21:51:18] "GET / HTTP/1.1" 200 -
+70.199.65.38 - - [31/Mar/2016 21:51:18] "GET /static/style2.css HTTP/1.1" 200 -
+191.5.18.211 - - [31/Mar/2016 22:49:18] "GET / HTTP/1.1" 200 -
+191.5.18.211 - - [31/Mar/2016 22:49:19] "GET /static/style2.css HTTP/1.1" 200 -
+Traceback (most recent call last):
+  File "/usr/lib/python2.7/SocketServer.py", line 295, in _handle_request_noblock
+    self.process_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 321, in process_request
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 334, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 649, in __init__
+    self.handle()
+  File "/usr/local/lib/python2.7/dist-packages/werkzeug/serving.py", line 216, in handle
+    rv = BaseHTTPRequestHandler.handle(self)
+  File "/usr/lib/python2.7/BaseHTTPServer.py", line 340, in handle
+    self.handle_one_request()
+  File "/usr/local/lib/python2.7/dist-packages/werkzeug/serving.py", line 247, in handle_one_request
+    self.raw_requestline = self.rfile.readline()
+IOError: [Errno 104] Connection reset by peer
+113.240.250.156 - - [01/Apr/2016 00:12:13] "GET / HTTP/1.0" 200 -
+113.240.250.156 - - [01/Apr/2016 00:12:44] "GET / HTTP/1.0" 200 -
+113.240.250.156 - - [01/Apr/2016 00:12:45] "GET / HTTP/1.1" 200 -
+113.240.250.156 - - [01/Apr/2016 00:13:44] "GET / HTTP/1.1" 200 -
+166.171.184.15 - - [01/Apr/2016 00:28:45] "GET / HTTP/1.1" 200 -
+122.224.19.57 - - [01/Apr/2016 14:11:58] "GET /script HTTP/1.1" 404 -
+121.40.181.209 - - [01/Apr/2016 14:39:32] "GET /manager/html HTTP/1.1" 404 -
+114.55.34.124 - - [01/Apr/2016 15:04:36] "GET /manager/html HTTP/1.1" 404 -
+166.171.187.149 - - [01/Apr/2016 15:16:57] "GET / HTTP/1.1" 200 -
+166.171.187.149 - - [01/Apr/2016 15:16:58] "GET /static/style2.css HTTP/1.1" 200 -
+207.237.145.132 - - [01/Apr/2016 15:42:35] "GET / HTTP/1.1" 200 -
+207.237.145.132 - - [01/Apr/2016 15:42:35] "GET /static/style2.css HTTP/1.1" 304 -
+/usr/local/lib/python2.7/dist-packages/numpy/core/fromnumeric.py:2645: VisibleDeprecationWarning: `rank` is deprecated; use the `ndim` attribute or function instead. To find the rank of a matrix see `numpy.linalg.matrix_rank`.
+  VisibleDeprecationWarning)
+HOME PAGE GET
+HOME PAGE GET
+HOME PAGE GET
+HOME PAGE GET
+HOME PAGE GET
+HOME PAGE GET
+HOME PAGE GET
+----------------------------------------
+Exception happened during processing of request from ('191.5.18.211', 27569)
+----------------------------------------
+HOME PAGE GET
+HOME PAGE GET
+HOME PAGE GET
+HOME PAGE GET
+HOME PAGE GET
+HOME PAGE GET
+HOME PAGE GET
+HOME PAGE POST
+Initialization: Time = 1.9 CPUTime = 2.0
+
+------------------------- OpenOpt 0.5625 -------------------------
+problem: unnamed   type: MILP    goal: max
+solver: glpk
+  iter  objFunVal  log10(maxResidual)  
+    0  0.000e+00               4.69 
+GLPK Integer Optimizer, v4.52
+876 rows, 286 columns, 2910 non-zeros
+286 integer variables, none of which are binary
+Preprocessing...
+5 hidden covering inequaliti(es) were detected
+16 rows, 286 columns, 2052 non-zeros
+286 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  1.030e+04  ratio =  1.030e+04
+GM: min|aij| =  7.346e-01  max|aij| =  1.361e+00  ratio =  1.853e+00
+EQ: min|aij| =  5.397e-01  max|aij| =  1.000e+00  ratio =  1.853e+00
+2N: min|aij| =  2.500e-01  max|aij| =  1.208e+00  ratio =  4.834e+00
+Constructing initial basis...
+Size of triangular part is 16
+Solving LP relaxation...
+GLPK Simplex Optimizer, v4.52
+16 rows, 286 columns, 2052 non-zeros
+      0: obj =  -7.588624398e+01  infeas =  1.861e+01 (0)
+*    15: obj =  -5.156496790e+02  infeas =  0.000e+00 (0)
+*    37: obj =  -2.101050953e+03  infeas =  1.578e-30 (0)
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
++    37: mip =     not found yet >=              -inf        (1; 0)
+Solution found by heuristic: -2067.19404109
++    41: mip =  -2.067194041e+03 >=     tree is empty   0.0% (0; 5)
+INTEGER OPTIMAL SOLUTION FOUND
+207.237.145.132 - - [01/Apr/2016 15:43:25] "POST / HTTP/1.1" 200 -
+207.237.145.132 - - [01/Apr/2016 15:45:09] "GET / HTTP/1.1" 200 -
+    1  0.000e+00            -100.00 
+istop: 1000 (optimal)
+Solver:   Time Elapsed = 0.07 	CPU Time Elapsed = 0.04
+objFuncValue: 2067.194 (feasible, MaxResidual = 0)
+function                   444922
+tuple                      432494
+cell                       346197
+set                        345619
+list                       175773
+dict                       92435
+instancemethod             85779
+oofun                      85778
+builtin_function_or_method 3067
+weakref                    2476
+None
+HOME PAGE GET
+HOME PAGE POST
+Initialization: Time = 2.7 CPUTime = 2.9
+
+------------------------- OpenOpt 0.5625 -------------------------
+problem: unnamed   type: MILP    goal: max
+solver: glpk
+  iter  objFunVal  log10(maxResidual)  
+    0  0.000e+00               4.69 
+GLPK Integer Optimizer, v4.52
+870 rows, 284 columns, 2888 non-zeros
+284 integer variables, none of which are binary
+Preprocessing...
+5 hidden covering inequaliti(es) were detected
+16 rows, 284 columns, 2038 non-zeros
+284 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  1.030e+04  ratio =  1.030e+04
+GM: min|aij| =  7.346e-01  max|aij| =  1.361e+00  ratio =  1.853e+00
+EQ: min|aij| =  5.397e-01  max|aij| =  1.000e+00  ratio =  1.853e+00
+2N: min|aij| =  2.500e-01  max|aij| =  1.208e+00  ratio =  4.834e+00
+Constructing initial basis...
+Size of triangular part is 16
+Solving LP relaxation...
+GLPK Simplex Optimizer, v4.52
+16 rows, 284 columns, 2038 non-zeros
+      0: obj =  -7.588624398e+01  infeas =  1.861e+01 (0)
+*    15: obj =  -2.598096790e+02  infeas =  0.000e+00 (0)
+*    36: obj =  -6.060365929e+02  infeas =  0.000e+00 (0)
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
++    36: mip =     not found yet >=              -inf        (1; 0)
+Solution found by heuristic: -561.182191602
+Solution found by heuristic: -584.813778139
++   101: mip =  -5.848137781e+02 >=     tree is empty   0.0% (0; 31)
+INTEGER OPTIMAL SOLUTION FOUND
+207.237.145.132 - - [01/Apr/2016 15:46:09] "POST / HTTP/1.1" 200 -
+    1  0.000e+00            -100.00 
+istop: 1000 (optimal)
+Solver:   Time Elapsed = 0.03 	CPU Time Elapsed = 0.03
+objFuncValue: 584.81378 (feasible, MaxResidual = 0)
+function                   865367
+tuple                      853805
+set                        686111
+cell                       685241
+list                       345580
+dict                       179104
+oofun                      170389
+instancemethod             169790
+builtin_function_or_method 3067
+weakref                    2478
+None
+HOME PAGE POST
+Initialization: Time = 2.0 CPUTime = 2.2
+
+------------------------- OpenOpt 0.5625 -------------------------
+problem: unnamed   type: MILP    goal: max
+solver: glpk
+  iter  objFunVal  log10(maxResidual)  
+    0  0.000e+00               4.69 
+GLPK Integer Optimizer, v4.52
+876 rows, 286 columns, 2910 non-zeros
+286 integer variables, none of which are binary
+Preprocessing...
+5 hidden covering inequaliti(es) were detected
+16 rows, 286 columns, 2052 non-zeros
+286 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  1.030e+04  ratio =  1.030e+04
+GM: min|aij| =  7.346e-01  max|aij| =  1.361e+00  ratio =  1.853e+00
+EQ: min|aij| =  5.397e-01  max|aij| =  1.000e+00  ratio =  1.853e+00
+2N: min|aij| =  2.500e-01  max|aij| =  1.208e+00  ratio =  4.834e+00
+Constructing initial basis...
+Size of triangular part is 16
+Solving LP relaxation...
+GLPK Simplex Optimizer, v4.52
+16 rows, 286 columns, 2052 non-zeros
+      0: obj =  -7.588624398e+01  infeas =  1.861e+01 (0)
+*    15: obj =  -1.958496790e+02  infeas =  0.000e+00 (0)
+*    45: obj =  -2.825915981e+02  infeas =  0.000e+00 (0)
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
++    45: mip =     not found yet >=              -inf        (1; 0)
+Solution found by heuristic: -281.036475117
++    47: >>>>>  -2.825692274e+02 >=  -2.825692274e+02   0.0% (2; 0)
++    47: mip =  -2.825692274e+02 >=     tree is empty   0.0% (0; 3)
+INTEGER OPTIMAL SOLUTION FOUND
+207.237.145.132 - - [01/Apr/2016 15:50:37] "POST / HTTP/1.1" 200 -
+    1  0.000e+00            -100.00 
+istop: 1000 (optimal)
+Solver:   Time Elapsed = 0.03 	CPU Time Elapsed = 0.03
+objFuncValue: 282.56923 (feasible, MaxResidual = 0)
+function                   1291629
+tuple                      1280941
+set                        1031287
+cell                       1028957
+list                       517725
+dict                       266954
+oofun                      256167
+instancemethod             254963
+builtin_function_or_method 3067
+weakref                    2478
+None
+ * Running on http://0.0.0.0:8080/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger pin code: 273-310-900
+207.237.145.132 - - [01/Apr/2016 15:57:49] "GET / HTTP/1.1" 200 -
+172.110.88.62 - - [01/Apr/2016 16:05:24] "GET / HTTP/1.1" 200 -
+172.110.88.62 - - [01/Apr/2016 16:05:24] "GET /static/style2.css HTTP/1.1" 200 -
+/usr/local/lib/python2.7/dist-packages/numpy/core/fromnumeric.py:2645: VisibleDeprecationWarning: `rank` is deprecated; use the `ndim` attribute or function instead. To find the rank of a matrix see `numpy.linalg.matrix_rank`.
+  VisibleDeprecationWarning)
+HOME PAGE GET
+HOME PAGE GET
+HOME PAGE POST
+Initialization: Time = 2.0 CPUTime = 2.2
+
+------------------------- OpenOpt 0.5625 -------------------------
+problem: unnamed   type: MILP    goal: max
+solver: glpk
+  iter  objFunVal  log10(maxResidual)  
+    0  0.000e+00               4.69 
+GLPK Integer Optimizer, v4.52
+876 rows, 286 columns, 2910 non-zeros
+286 integer variables, none of which are binary
+Preprocessing...
+PROBLEM HAS NO PRIMAL FEASIBLE SOLUTION
+172.110.88.62 - - [01/Apr/2016 16:06:39] "POST / HTTP/1.1" 200 -
+    1  0.000e+00            -100.00 
+istop: -1000 (LP relaxation is primal infeasible)
+Solver:   Time Elapsed = 0.03 	CPU Time Elapsed = 0.03
+NO FEASIBLE SOLUTION has been obtained (MaxResidual = 0, objFunc = nan)
+function                   444871
+tuple                      432479
+cell                       346193
+set                        345619
+list                       175771
+dict                       92427
+instancemethod             85779
+oofun                      85778
+builtin_function_or_method 3067
+weakref                    2470
+None
+HOME PAGE POST
+Initialization: Time = 2.0 CPUTime = 2.2
+
+------------------------- OpenOpt 0.5625 -------------------------
+problem: unnamed   type: MILP    goal: max
+solver: glpk
+  iter  objFunVal  log10(maxResidual)  
+    0  0.000e+00               4.69 
+GLPK Integer Optimizer, v4.52
+876 rows, 286 columns, 2910 non-zeros
+286 integer variables, none of which are binary
+Preprocessing...
+PROBLEM HAS NO PRIMAL FEASIBLE SOLUTION
+172.110.88.62 - - [01/Apr/2016 16:06:50] "POST / HTTP/1.1" 200 -
+    1  0.000e+00            -100.00 
+istop: -1000 (LP relaxation is primal infeasible)
+Solver:   Time Elapsed = 0.03 	CPU Time Elapsed = 0.03
+NO FEASIBLE SOLUTION has been obtained (MaxResidual = 0, objFunc = nan)
+function                   871133
+tuple                      859615
+set                        690795
+cell                       689909
+list                       347917
+dict                       180278
+oofun                      171556
+instancemethod             170952
+builtin_function_or_method 3067
+weakref                    2472
+None
+HOME PAGE POST
+Initialization: Time = 2.0 CPUTime = 2.2
+
+------------------------- OpenOpt 0.5625 -------------------------
+problem: unnamed   type: MILP    goal: max
+solver: glpk
+  iter  objFunVal  log10(maxResidual)  
+    0  0.000e+00               4.69 
+GLPK Integer Optimizer, v4.52
+876 rows, 286 columns, 2910 non-zeros
+286 integer variables, none of which are binary
+Preprocessing...
+PROBLEM HAS NO PRIMAL FEASIBLE SOLUTION
+172.110.88.62 - - [01/Apr/2016 16:07:01] "POST / HTTP/1.1" 200 -
+    1  0.000e+00            -100.00 
+istop: -1000 (LP relaxation is primal infeasible)
+Solver:   Time Elapsed = 0.03 	CPU Time Elapsed = 0.03
+NO FEASIBLE SOLUTION has been obtained (MaxResidual = 0, objFunc = nan)
+function                   1297395
+tuple                      1286751
+set                        1035971
+cell                       1033625
+list                       520063
+dict                       268128
+oofun                      257334
+instancemethod             256125
+builtin_function_or_method 3067
+weakref                    2472
+None
+HOME PAGE POST
+Initialization: Time = 2.0 CPUTime = 2.2
+
+------------------------- OpenOpt 0.5625 -------------------------
+problem: unnamed   type: MILP    goal: max
+solver: glpk
+  iter  objFunVal  log10(maxResidual)  
+    0  0.000e+00               4.69 
+GLPK Integer Optimizer, v4.52
+876 rows, 286 columns, 2910 non-zeros
+286 integer variables, none of which are binary
+Preprocessing...
+PROBLEM HAS NO PRIMAL FEASIBLE SOLUTION
+172.110.88.62 - - [01/Apr/2016 16:07:13] "POST / HTTP/1.1" 200 -
+    1  0.000e+00            -100.00 
+istop: -1000 (LP relaxation is primal infeasible)
+Solver:   Time Elapsed = 0.03 	CPU Time Elapsed = 0.03
+NO FEASIBLE SOLUTION has been obtained (MaxResidual = 0, objFunc = nan)
+function                   1723657
+tuple                      1713887
+set                        1381147
+cell                       1377341
+list                       692209
+dict                       355978
+oofun                      343112
+instancemethod             341298
+builtin_function_or_method 3067
+weakref                    2472
+None
+HOME PAGE POST
+Initialization: Time = 1027.6 CPUTime = 4.7
+
+------------------------- OpenOpt 0.5625 -------------------------
+problem: unnamed   type: MILP    goal: max
+solver: glpk
+  iter  objFunVal  log10(maxResidual)  
+    0  0.000e+00               4.69 
+GLPK Integer Optimizer, v4.52
+876 rows, 286 columns, 2910 non-zeros
+286 integer variables, none of which are binary
+Preprocessing...
+PROBLEM HAS NO PRIMAL FEASIBLE SOLUTION
+172.110.88.62 - - [01/Apr/2016 16:24:38] "POST / HTTP/1.1" 200 -

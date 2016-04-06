@@ -1,0 +1,82 @@
+<!doctype html> <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style2.css') }}">
+
+  <link rel="stylesheet" type="text/css" href="http://www.eyecon.ro/bootstrap-slider/css/slider.css">
+  <link rel="stylesheet" type="text/css" href="http://www.eyecon.ro/bootstrap-slider/css/bootstrap.css">
+
+    <title>DFSharp</title>
+
+</head>
+<body>
+
+<div class="wrap">
+    <div class="fleft">
+
+
+<iframe src="http://52.38.36.24:5601/app/kibana#/dashboard/Projections?_g=(refreshInterval:(display:'1%20minute',pause:!f,section:2,value:60000),time:(from:now%2Fd,mode:quick,to:now%2Fd))&_a=(filters:!(),options:(darkTheme:!t),panels:!((col:5,id:Top25_Owned_Players,panelIndex:3,row:5,size_x:4,size_y:4,type:visualization),(col:1,columns:!(player,dk_sal,DK_Proj,numpos,Team,home,min_proj,dk_per_min,value,Start,opppts_avg,status),id:LatestProjections,panelIndex:9,row:9,size_x:8,size_y:5,sort:!(DK_Proj,desc),type:search),(col:9,id:Ownership-Over-Time,panelIndex:10,row:5,size_x:4,size_y:4,type:visualization),(col:1,id:Top25_Owned,panelIndex:11,row:5,size_x:4,size_y:4,type:visualization),(col:9,id:Stacked_Bar_Value,panelIndex:12,row:9,size_x:4,size_y:5,type:visualization),(col:9,columns:!(text,user.name,user.followers_count),id:FilteredTweetStream,panelIndex:13,row:14,size_x:4,size_y:4,sort:!(timestamp,desc),type:search),(col:3,columns:!(player,dk_sal,ownership,DK_Proj,numpos,Team,value,min_proj),id:LatestLineup,panelIndex:14,row:1,size_x:6,size_y:4,sort:!(dk_sal,desc),type:search),(col:9,id:LineupViz,panelIndex:16,row:1,size_x:4,size_y:4,type:visualization),(col:1,columns:!(player,news),id:ValuePlays,panelIndex:17,row:14,size_x:8,size_y:4,sort:!(published,desc),type:search),(col:1,id:AvgOwnership,panelIndex:18,row:3,size_x:2,size_y:2,type:visualization),(col:1,id:ProjSum,panelIndex:19,row:1,size_x:2,size_y:2,type:visualization),(col:4,id:ThankYou,panelIndex:20,row:18,size_x:7,size_y:2,type:visualization)),query:(query_string:(analyze_wildcard:!t,query:'*')),title:Projections,uiState:(P-10:(vis:(legendOpen:!f)),P-12:(vis:(legendOpen:!t)),P-16:(vis:(legendOpen:!f)),P-3:(vis:(legendOpen:!f))))" height="1800" width="100%"></iframe>
+<!--<iframe src="http://52.38.36.24:5601/app/kibana#/dashboard/Projections?embed=true&_g=(refreshInterval:(display:'1%20minute',pause:!f,section:2,value:60000),time:(from:now%2Fd,mode:quick,to:now%2Fd))&_a=(filters:!(),options:(darkTheme:!t),panels:!((col:5,id:Top25_Owned_Players,panelIndex:3,row:5,size_x:4,size_y:4,type:visualization),(col:1,columns:!(player,dk_sal,DK_Proj,numpos,Team,home,min_proj,dk_per_min,value,Start,opppts_avg,status),id:LatestProjections,panelIndex:9,row:9,size_x:8,size_y:5,sort:!(DK_Proj,desc),type:search),(col:9,id:Ownership-Over-Time,panelIndex:10,row:5,size_x:4,size_y:4,type:visualization),(col:1,id:Top25_Owned,panelIndex:11,row:5,size_x:4,size_y:4,type:visualization),(col:9,id:Stacked_Bar_Value,panelIndex:12,row:9,size_x:4,size_y:5,type:visualization),(col:9,columns:!(text,user.name,user.followers_count),id:FilteredTweetStream,panelIndex:13,row:14,size_x:4,size_y:4,sort:!(timestamp,desc),type:search),(col:3,columns:!(player,dk_sal,ownership,DK_Proj,numpos,Team,value,min_proj),id:LatestLineup,panelIndex:14,row:1,size_x:6,size_y:4,sort:!(dk_sal,desc),type:search),(col:9,id:LineupViz,panelIndex:16,row:1,size_x:4,size_y:4,type:visualization),(col:1,columns:!(player,news),id:ValuePlays,panelIndex:17,row:14,size_x:8,size_y:4,sort:!(published,desc),type:search),(col:1,id:AvgOwnership,panelIndex:18,row:3,size_x:2,size_y:2,type:visualization),(col:1,id:ProjSum,panelIndex:19,row:1,size_x:2,size_y:2,type:visualization)),query:(query_string:(analyze_wildcard:!t,query:'*')),title:Projections,uiState:(P-10:(vis:(legendOpen:!f)),P-12:(vis:(legendOpen:!t)),P-16:(vis:(legendOpen:!f)),P-3:(vis:(legendOpen:!f))))" height="1800" width="100%"></iframe>-->
+
+
+    </div>
+    <div class="fright">
+
+    <div class="page">
+    <h1 id='mytitle'>Lineup Optimizer</h1>
+
+    <form method=post>
+      <div class="form-group">
+        <input type="text" class="form-control" name=locks placeholder="Locks- e.g. Stephen Curry, Draymond Green"></div>
+      <div class="form-group">
+        <input type="text" class="form-control" name=excludes placeholder="Excludes- e.g. Kobe Bryant, LeBron James">
+      </div>
+<p>Enter Ownership Weight</p>
+<p>0 is Projections only</p>
+<p>5 is Max Ownership [Cash Games]</p>
+<p>-5 is Max Fade [GPP]</p>
+
+       <div class="form-group">
+	<input name=slider id="ex1" data-slider-id='ex1Slider' type="text" data-slider-min="-5" data-slider-max="5" data-slider-step="1" data-slider-val="5" value="5"/>
+       </div>
+
+      <button type="submit" class="btn btn-success">Show me the lineup!</button>
+    </form>
+
+    {% if data %}
+	{% for d in data %}
+	   <li clas"list-group-item">{{ d }}
+	{% endfor %}
+    {% endif %}
+    </div>
+    </div>
+</div>
+
+
+  <!-- JQuery CDN -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+<script type='text/javascript' src="http://www.eyecon.ro/bootstrap-slider/js/bootstrap-slider.js"></script>
+
+<script type='text/javascript'>
+$('#ex1').slider({
+	formatter: function(value) {
+		return 'Current value: ' + value;
+	}
+});
+</script>
+
+
+
+
+
+</body>
+
+</html>

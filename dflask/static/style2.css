@@ -1,0 +1,23 @@
+.wrap {
+width: 100%;
+height: 100%;
+overflow:auto;
+}
+
+.fleft {
+    float:left; 
+    width: 80%;
+    background:white;
+    height: 100%;
+}
+
+.fright {
+    float: right;
+    background:white;
+    height: 100%;
+    width: 20%;
+}
+
+#ex1slider .slider-selection {
+	background: #BABABA;
+}
