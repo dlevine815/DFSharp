@@ -3,6 +3,9 @@
 
 # In[1]:
 
+import json
+import urllib
+import time
 import pandas as pd
 import matplotlib as plt
 import numpy as np
@@ -22,6 +25,8 @@ import cnfg
 import tweepy
 from requests_oauthlib import OAuth1
 import re
+
+
 
 
 
@@ -319,28 +324,33 @@ def get_twitter_updates(n=50):
 # extract player name from tweets
 def get_name(row):
     splitlist = row['text'].split()
-    three = splitlist[5]
-    four = splitlist[6]
-    if three == daystr:
-        name = ' '.join(splitlist[:2])
-    elif four == daystr:
-        name = ' '.join(splitlist[:3])
-    else:
-        name = None
-    return(name)
+    try:
+        three = splitlist[5]
+        four = splitlist[6]
+        if three == daystr:
+            name = ' '.join(splitlist[:2])
+        elif four == daystr:
+            name = ' '.join(splitlist[:3])
+        else:
+            name = None
+        return(name)
+    except:
+	return(None)
 # extract status from tweets
 def get_status(row):
     splitlist = row['text'].split()
-    three = splitlist[5]
-    four = splitlist[6]
-    if three == daystr:
-        status = splitlist[4]
-    elif four == daystr:
-        status = splitlist[5]
-    else:
-        status = None
-    return(status)
-
+    try:
+        three = splitlist[5]
+        four = splitlist[6]
+        if three == daystr:
+            status = splitlist[4]
+        elif four == daystr:
+            status = splitlist[5]
+        else:
+            status = None
+        return(status)
+    except:
+	return(None)
 
 # In[10]:
 
@@ -377,8 +387,72 @@ def merge_twitter_info(df):
     return(merged_depth)
     
 
+def OwnThePlay():
+    """inputs: none
+       outputs: a list of tuples containing ownership percentages
+    """
 
-# In[11]:
+    #context = ssl._create_unverified_context()
+    otp_json = json.load(urllib.urlopen("http://api.owntheplay.com/api/upcoming/NBA"))
+    # print(otp_json)
+
+    contestSets = otp_json['contestSets']
+    league      = otp_json['league'] # NBA
+    athleteInfo = otp_json['athleteInfo']
+    contests    = otp_json['contests']
+    teams       = otp_json['teams']
+
+    today = time.strftime('%Y%m%d')
+    todays_games = 0
+    # we only want today's contests
+    for key in contests:
+        contest_date = contests[key]['gameday']
+        if contest_date == today:
+            todays_games += 1
+        # count number of games being played on today's date
+        # we will use That number to match with contest set
+
+    print todays_games
+    key2 = 0
+    for key in contestSets:
+        if len(contestSets[key]['contestIds']) == todays_games:
+            key2 = key
+
+    # create dataframe of ownership
+    ownership_list = []
+    yy = 0
+    for key in athleteInfo.keys():
+        x = athleteInfo[key]['name']
+        dic = athleteInfo[key]['contestSets']
+        try:
+            y = athleteInfo[key]['contestSets'][key2]['salary']
+            z = athleteInfo[key]['contestSets'][key2]['ownership']['SALARYCAP']['percentage']
+            cooltuple = (x, y, z)
+            ownership_list.append(cooltuple)
+        except KeyError, e:
+            print 'I got a KeyError - reason "%s"' % str(e)
+            print 'This player will not be listed: "%s"' % x
+        except:
+            print 'I got another exception, but I should re-raise'
+            raise
+
+    df = pd.DataFrame.from_records(ownership_list, columns=['player','salary','ownership'])
+    #print df
+
+    #df.to_csv('/home/ubuntu/dfsharp/otp_csvs/otp_'+today+'.csv')
+
+    return df
+
+''' merge otp - merges latest ownership into projections
+	inputs - df
+	outputs - merged df
+'''
+def merge_otp(df):
+    otdf = OwnThePlay()
+
+    df2 = pd.merge(left=df,right=otdf, how='left', left_on='name', right_on='player')
+    return(df2)
+
 
 ''' project today - makes projections for today's games
     inputs:
@@ -393,7 +467,7 @@ def project_today(model, df):
     # adjust min_proj with status info
     df['min_proj'] = df.apply(apply_status, axis=1)
     
-    today_df = df[['dk_pos','dk_sal','Team','name','status','Start','min_proj',
+    today_df = df[['dk_pos','dk_sal','Team','name','status','Start','min_proj','ownership',
                    'min_7d_avg','dk_avg_90_days','dk_std_90_days','dk_max_30_days',
                    'home','dk_per_min','opppts_avg']].dropna(subset=['dk_sal','Start','min_proj','dk_per_min','home','opppts_avg'])
     # add intercept and convert all to numeric
@@ -450,8 +524,11 @@ injuries = read_injury_report(starters)
 # 6.75) merge in latest twitter injury news [now status column is up, but minute aren't updated]
 twitter = merge_twitter_info(injuries)
 
+# 6.8) merge in latest OTP info
+otps = merge_otp(twitter)
+
 # 7) generate today's projections [ update minutes first!]
-today_proj = project_today(model, twitter)
+today_proj = project_today(model, otps)
 # 8) push timestamped projections to elasticsearch
 
 optfile = today.strftime('%Y%m%d')+'_opt.csv'
@@ -462,11 +539,13 @@ today_proj['numpos'] = today_proj['dk_pos'].map({1 : 'PG', 2 : 'SG', 3 : 'SF', 4
 today_proj.fillna(0, inplace=True, downcast='infer')
 
 hio = today_proj[['numpos','name','dk_sal','Start','DK_Proj','value','status',
-                  'ceiling','min_proj','dk_per_min','home','Team','opppts_avg']].to_csv(opt_path, index=False)
+                  'ceiling','min_proj','dk_per_min','home','Team','opppts_avg','ownership']].to_csv(opt_path, index=False)
 
 
 
+from proj_elastic import InsertProj
 
+InsertProj(today_proj)
 
 
 
