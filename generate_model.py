@@ -169,8 +169,8 @@ def add_stats(df):
     df['ftm'] = df['Stats'].str.extract('(\d*)-\d*ft')
     df['fta'] = df['Stats'].str.extract('\d*-(\d*)ft')
     df['tov'] = df['Stats'].str.extract('(\d*)to')
-    df[['pts','rbs','stl','ast','blk','3pm','fgm','fga','ftm','fta','tov']] = df[['pts','rbs','stl','ast','blk','3pm','fgm','fga','ftm','fta','tov']].apply(lambda x: pd.to_numeric(x, errors='coerce'))
-    df[['pts','rbs','stl','ast','blk','3pm','fgm','fga','ftm','fta','tov']].fillna(0, inplace=True)
+    #df[['pts','rbs','stl','ast','blk','3pm','fgm','fga','ftm','fta','tov']] = df[['pts','rbs','stl','ast','blk','3pm','fgm','fga','ftm','fta','tov']].apply(lambda x: pd.to_numeric(x, errors='coerce'))
+    #df[['pts','rbs','stl','ast','blk','3pm','fgm','fga','ftm','fta','tov']].fillna(0, inplace=True)
 
     #df.to_csv('/home/ubuntu/dfsharp/gamelogs/20160326_gamelogs.csv')
     
@@ -209,7 +209,7 @@ def train_save_model(df, num=0):
 df = daily_download()
 
 # B) create DVP
-df = make_dvp()
+df = make_dvp(df)
 
 # C) add stats
 df = add_stats(df)
