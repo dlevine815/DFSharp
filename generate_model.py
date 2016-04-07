@@ -1,4 +1,3 @@
-
 # coding: utf-8
 
 # In[70]:
@@ -64,7 +63,13 @@ def daily_download():
     
     return(df)
 
-
+def make_dvp(df):
+    # create sportvu clusters
+    cdf = pd.read_csv('/home/ubuntu/dfsharp/sportvu_clusters.csv', sep='\t', encoding='utf-16')
+    df = df.merge(cdf[['Name','Cluster Position Off','Cluster Position Def']].drop_duplicates(subset=['Name']), how='left', left_on='name', right_on='Name')
+    df['Cluster Position Off'] = df['Cluster Position Off'].fillna(df['dk_pos'])
+    df['kpos'] = df['Cluster Position Off']
+    return(df)
 # In[4]:
 
 # make these into 1 function that takes- DF, DateNum, ColToAvg
@@ -90,6 +95,25 @@ def dk_std_90_days(x):
 def dk_max_30_days(x):
     return df[(df['index'] >= x['index'] - pd.DateOffset(30)) & (df['index'] < x['index']) & (df['name'] == x['name'])].DKP.max()
 
+# create avg minutes when starting
+def min_when_starting(x):
+    return df[(df['index'] >= x['index'] - pd.DateOffset(150)) & (df['Start'] == 1) & (df['index'] < x['index']) & (df['name'] == x['name'])].Minutes.mean()
+# create avg minutes when starting
+def min_when_bench(x):
+    return df[(df['index'] >= x['index'] - pd.DateOffset(150)) & (df['Start'] == 0) & (df['index'] < x['index']) & (df['name'] == x['name'])].Minutes.mean()
+def starts_past_week(x):
+    return df[(df['index'] >= x['index'] - pd.DateOffset(7)) & (df['index'] < x['index']) & (df['name'] == x['name'])].Start.sum()
+
+# if they're starting today, and they have <= 1 start in past 7 days, use min_when_start instead
+def adjust_minutes(row):
+    if (row['Start'] == True) and (row['starts_past_week'] <= 1) and (row['min_when_start'] > row['min_7d_avg']):
+        return(row['min_when_start'])
+    else:
+        return(row['min_7d_avg'])
+# create DKP allowed vs each position by team
+def dvp(x):
+    return df[(df['index'] >= x['index'] - pd.DateOffset(180)) & (df['index'] < x['index']) & (df['Opp'] == x['Opp']) & (df['kpos'] == x['kpos'])]['DKP'].mean()
+   
 
 # In[5]:
 
@@ -121,6 +145,32 @@ def add_stats(df):
     df['dk_std_90_days'] = df.apply(dk_std_90_days, axis=1)
     df['dk_max_30_days'] = df.apply(dk_max_30_days, axis=1)
 
+    # get min when starting / bench
+    df['min_when_start'] = df.apply(min_when_starting, axis=1)
+    df['min_when_bench'] = df.apply(min_when_bench, axis=1)
+    # count games started in past week
+    df['starts_past_week'] = df.apply(starts_past_week, axis=1)
+    # adjust minutes
+    df['min_proj'] = df.apply(adjust_minutes, axis=1)
+    # add dvp
+    df['dvp'] = df.apply(dvp, axis=1)
+    # add dvp rank
+    df['dvprank'] = pd.qcut(df['dvp'], [0.05, 0.1, 0.25, 0.5, 0.75, .93, 1], labels=False)
+    
+    # create summary stats
+    df['pts'] = df['Stats'].str.extract('(\d*)pt')
+    df['rbs'] = df['Stats'].str.extract('(\d*)rb')
+    df['stl'] = df['Stats'].str.extract('(\d*)st')
+    df['ast'] = df['Stats'].str.extract('(\d*)as')
+    df['blk'] = df['Stats'].str.extract('(\d*)bl')
+    df['3pm'] = df['Stats'].str.extract('(\d*)trey')
+    df['fgm'] = df['Stats'].str.extract('(\d*)-\d*fg')
+    df['fga'] = df['Stats'].str.extract('\d*-(\d*)fg')
+    df['ftm'] = df['Stats'].str.extract('(\d*)-\d*ft')
+    df['fta'] = df['Stats'].str.extract('\d*-(\d*)ft')
+    df['tov'] = df['Stats'].str.extract('(\d*)to')
+    df[['pts','rbs','stl','ast','blk','3pm','fgm','fga','ftm','fta','tov']] = df[['pts','rbs','stl','ast','blk','3pm','fgm','fga','ftm','fta','tov']].apply(lambda x: pd.to_numeric(x, errors='coerce'))
+    df[['pts','rbs','stl','ast','blk','3pm','fgm','fga','ftm','fta','tov']].fillna(0, inplace=True)
 
     #df.to_csv('/home/ubuntu/dfsharp/gamelogs/20160326_gamelogs.csv')
     
@@ -138,9 +188,9 @@ def add_stats(df):
 '''
 def train_save_model(df, num=0):
     # train on most recent 30 days?
-    train = df[num:].dropna()  
-    Y_train, X_train = dmatrices('''DKP_trans ~ Start  + min_7d_avg + dk_per_min 
-                                 + home  + opppts_avg 
+    train = df[num:].dropna(subset=['DKP_trans','Start','min_proj','dk_per_min','home','dvp'])  
+    Y_train, X_train = dmatrices('''DKP_trans ~  Start + min_proj  + dk_per_min + dvp
+                                 + home   
                                  
                  ''', data=train, return_type='dataframe')
     
@@ -152,48 +202,23 @@ def train_save_model(df, num=0):
     return(results)
 
 
-# In[8]:
-
-# input - trained model - DF
-# output - DF of yesterdays projections
-def assess_yesterday(model, df):
-    yest = datetime.today() - timedelta(days=1)
-    yest_players = df[df['index'] == yest.strftime('%Y%m%d')]
-    yest_players.dropna(inplace=True)  
-    
-    Y_yest, X_yest = dmatrices('''DKP_trans ~ Start  + min_7d_avg + dk_per_min 
-                                 + home + opppts_avg 
-                 ''', data=yest_players, return_type='dataframe')
-    
-    pred = yest_players[['index','name','dk_sal','Start','Minutes','min_7d_avg','dk_per_min','Opp','home','opppts_avg','DKP']]
-    pred['DKP_Proj'] = (model.predict(X_yest, transform=False))
-    pred['DKP_Proj'] = pred['DKP_Proj']**2
-    
-    pred['diff'] = pred['DKP'] - pred['DKP_Proj']
-    pred['value'] = pred['DKP_Proj'] / (pred['dk_sal'] / 1000)
-    pred['Mindiff'] = pred['Minutes'] - pred['min_7d_avg']
-    return(pred)
-
-
 # In[11]:
 
 
-# 1) daily download 
+# A) daily download 
 df = daily_download()
 
-# 2) add stats
+# B) create DVP
+df = make_dvp()
+
+# C) add stats
 df = add_stats(df)
-# 3) pull out todays frame
+
+# D) pull out todays frame
 today = datetime.today()
 todays_players = df[df['index'] == today.strftime('%Y%m%d')]
 csvpath = '/home/ubuntu/dfsharp/csvs/'+today.strftime('%Y%m%d')+'_players.csv'
 todays_players.to_csv(csvpath)
 
-# 4) train and save model
-train_save_model(df, 10000)
-
-# 5) assess yesterday's predictions (OPT)
-# yest = assess_yesterday(model, df)
-
-# 1-5 happen daily at 1 PM: the today's players CSV is saved to CSV, and the model is pickled to EC2
-# yesterdays projections are pushed to elasticsearch once daily on their own index
+# E) train and save model
+train_save_model(df, 14000)
