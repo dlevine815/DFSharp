@@ -18,23 +18,49 @@
 <div class="wrap">
     <div class="fleft">
 
-
-<iframe src="http://52.38.36.24:5601/app/kibana#/dashboard/Projections?_g=(refreshInterval:(display:'1%20minute',pause:!f,section:2,value:60000),time:(from:now%2Fd,mode:quick,to:now%2Fd))&_a=(filters:!(),options:(darkTheme:!t),panels:!((col:5,id:Top25_Owned_Players,panelIndex:3,row:5,size_x:4,size_y:4,type:visualization),(col:1,columns:!(player,dk_sal,DK_Proj,numpos,Team,home,min_proj,dk_per_min,value,Start,opppts_avg,status),id:LatestProjections,panelIndex:9,row:9,size_x:8,size_y:5,sort:!(DK_Proj,desc),type:search),(col:9,id:Ownership-Over-Time,panelIndex:10,row:5,size_x:4,size_y:4,type:visualization),(col:1,id:Top25_Owned,panelIndex:11,row:5,size_x:4,size_y:4,type:visualization),(col:9,id:Stacked_Bar_Value,panelIndex:12,row:9,size_x:4,size_y:5,type:visualization),(col:9,columns:!(text,user.name,user.followers_count),id:FilteredTweetStream,panelIndex:13,row:14,size_x:4,size_y:4,sort:!(timestamp,desc),type:search),(col:3,columns:!(player,dk_sal,ownership,DK_Proj,numpos,Team,value,min_proj),id:LatestLineup,panelIndex:14,row:1,size_x:6,size_y:4,sort:!(dk_sal,desc),type:search),(col:9,id:LineupViz,panelIndex:16,row:1,size_x:4,size_y:4,type:visualization),(col:1,columns:!(player,news),id:ValuePlays,panelIndex:17,row:14,size_x:8,size_y:4,sort:!(published,desc),type:search),(col:1,id:AvgOwnership,panelIndex:18,row:3,size_x:2,size_y:2,type:visualization),(col:1,id:ProjSum,panelIndex:19,row:1,size_x:2,size_y:2,type:visualization),(col:4,id:ThankYou,panelIndex:20,row:18,size_x:7,size_y:2,type:visualization)),query:(query_string:(analyze_wildcard:!t,query:'*')),title:Projections,uiState:(P-10:(vis:(legendOpen:!f)),P-12:(vis:(legendOpen:!t)),P-16:(vis:(legendOpen:!f)),P-3:(vis:(legendOpen:!f))))" height="1800" width="100%"></iframe>
-<!--<iframe src="http://52.38.36.24:5601/app/kibana#/dashboard/Projections?embed=true&_g=(refreshInterval:(display:'1%20minute',pause:!f,section:2,value:60000),time:(from:now%2Fd,mode:quick,to:now%2Fd))&_a=(filters:!(),options:(darkTheme:!t),panels:!((col:5,id:Top25_Owned_Players,panelIndex:3,row:5,size_x:4,size_y:4,type:visualization),(col:1,columns:!(player,dk_sal,DK_Proj,numpos,Team,home,min_proj,dk_per_min,value,Start,opppts_avg,status),id:LatestProjections,panelIndex:9,row:9,size_x:8,size_y:5,sort:!(DK_Proj,desc),type:search),(col:9,id:Ownership-Over-Time,panelIndex:10,row:5,size_x:4,size_y:4,type:visualization),(col:1,id:Top25_Owned,panelIndex:11,row:5,size_x:4,size_y:4,type:visualization),(col:9,id:Stacked_Bar_Value,panelIndex:12,row:9,size_x:4,size_y:5,type:visualization),(col:9,columns:!(text,user.name,user.followers_count),id:FilteredTweetStream,panelIndex:13,row:14,size_x:4,size_y:4,sort:!(timestamp,desc),type:search),(col:3,columns:!(player,dk_sal,ownership,DK_Proj,numpos,Team,value,min_proj),id:LatestLineup,panelIndex:14,row:1,size_x:6,size_y:4,sort:!(dk_sal,desc),type:search),(col:9,id:LineupViz,panelIndex:16,row:1,size_x:4,size_y:4,type:visualization),(col:1,columns:!(player,news),id:ValuePlays,panelIndex:17,row:14,size_x:8,size_y:4,sort:!(published,desc),type:search),(col:1,id:AvgOwnership,panelIndex:18,row:3,size_x:2,size_y:2,type:visualization),(col:1,id:ProjSum,panelIndex:19,row:1,size_x:2,size_y:2,type:visualization)),query:(query_string:(analyze_wildcard:!t,query:'*')),title:Projections,uiState:(P-10:(vis:(legendOpen:!f)),P-12:(vis:(legendOpen:!t)),P-16:(vis:(legendOpen:!f)),P-3:(vis:(legendOpen:!f))))" height="1800" width="100%"></iframe>-->
-
+<iframe src="http://52.38.36.24:5601/app/kibana#/dashboard/Projections?_g=(refreshInterval:(display:'1%20minute',pause:!f,section:2,value:60000),time:(from:now-7d,mode:quick,to:now))&_a=(filters:!(),options:(darkTheme:!t),panels:!((col:9,id:Ownership-Over-Time,panelIndex:10,row:5,size_x:4,size_y:4,type:visualization),(col:9,id:Stacked_Bar_Value,panelIndex:12,row:13,size_x:4,size_y:5,type:visualization),(col:9,id:LineupViz,panelIndex:16,row:1,size_x:4,size_y:4,type:visualization),(col:1,columns:!(player,news),id:ValuePlays,panelIndex:17,row:9,size_x:8,size_y:4,sort:!(published,desc),type:search),(col:1,id:AvgOwnership,panelIndex:18,row:3,size_x:2,size_y:2,type:visualization),(col:1,id:ProjSum,panelIndex:19,row:1,size_x:2,size_y:2,type:visualization),(col:1,columns:!(text),id:BaskMonster,panelIndex:22,row:5,size_x:8,size_y:4,sort:!(timestamp,desc),type:search),(col:3,columns:!(numpos,player,Team,dk_sal,ownership,DK_Proj,dvprank,value,min_proj,Opp),id:LatestLineup,panelIndex:23,row:1,size_x:6,size_y:4,sort:!(dk_sal,desc),type:search),(col:1,columns:!(player,dk_sal,numpos,Team,Opp,ownership,value,DK_Proj,min_proj,dk_per_min,opppts_avg,dvprank,home,Start,status),id:LatestProjections,panelIndex:24,row:13,size_x:8,size_y:5,sort:!(dk_sal,desc),type:search),(col:9,id:Top-10-Owned-Players,panelIndex:25,row:9,size_x:4,size_y:4,type:visualization),(col:1,columns:!(player,Team,Opp,Minutes,dk_sal,DKP,value,starts_past_week,Start,min_proj,pts,rbs,ast,blk,stl,tov,team_pts,opp_pts,dvprank,dk_change,dk_per_min,home),id:GameLogs,panelIndex:26,row:18,size_x:12,size_y:4,sort:!(timestamp,desc),type:search)),query:(query_string:(analyze_wildcard:!t,query:'*')),title:Projections,uiState:(P-10:(vis:(legendOpen:!f)),P-12:(vis:(colors:('Average%20DK_Proj':%237EB26D,'Average%20min_proj':%2365C5DB,'Average%20ownership':%23890F02,'Average%20value':%2365C5DB),legendOpen:!f)),P-16:(vis:(legendOpen:!f)),P-25:(vis:(legendOpen:!f))))" height="1600" width="100%"></iframe>
 
     </div>
     <div class="fright">
 
     <div class="page">
+    <h1 id='sharptitle'>Welcome to DFSharp!</h1>
+	<p> To the left you'll find the latest lineup entered using our optimizer.</p>
+
+<p>below that is a live injury feed, and a graph of ownership over time.</p>
+
+<p>Underneath that you'll find news articles, daily projections, and game logs for every player, visualizations for the top owned players and the model's top projected value players.</p>
+
+<p>Keep in mind you can click on any player in a graph to filter on that player, search for a player or team [abbreviation] in the search bar at the top, and change the time frame for all panels in the top right-hand corner.</p>
+
+<p>enjoy!</p>
+
+
     <h1 id='mytitle'>Lineup Optimizer</h1>
 
     <form method=post>
       <div class="form-group">
         <input type="text" class="form-control" name=locks placeholder="Locks- e.g. Stephen Curry, Draymond Green"></div>
       <div class="form-group">
-        <input type="text" class="form-control" name=excludes placeholder="Excludes- e.g. Kobe Bryant, LeBron James">
+        <input type="text" class="form-control" name=excludes placeholder="Excludes (or teams)- e.g. Alex Len, nyk, atl">
       </div>
+	<div class="form-group">
+        <input type="text" class="form-control" name=min_ownership placeholder="Minimum Ownership % (default 0 max 50)">
+      </div>
+	<div class="form-group">
+        <input type="text" class="form-control" name=max_own placeholder="Maximum Ownership % (default 100)">
+      </div>
+	<div class="form-group">
+        <input type="text" class="form-control" name=min_dvp placeholder="Minimum DvP Rank (default 0 max 5)">
+      </div>
+	<div class="form-group">
+        <input type="text" class="form-control" name=min_sal placeholder="Minimum Salary (default 3000)">
+      </div>
+
+
+
+
+
 <p>Enter Ownership Weight</p>
 <p>0 is Projections only</p>
 <p>5 is Max Ownership [Cash Games]</p>
@@ -74,7 +100,16 @@ $('#ex1').slider({
 </script>
 
 
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
+  ga('create', 'UA-72318729-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
 
 
 </body>

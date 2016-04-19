@@ -59,8 +59,24 @@ def home_page():
             excludes = request.form['excludes'].split(", ")
 
 	delta = request.form['slider']
+	if request.form['min_ownership']:
+	    min_own = request.form['min_ownership']
+	else:
+	    min_own = 0
+	if request.form['min_dvp']:
+	    min_dvp = request.form['min_dvp']
+	else:
+	    min_dvp = 0
+	if request.form['max_own']:
+	    max_sal = request.form['max_own']
+	else:
+	    max_own = 100
+	if request.form['min_sal']:
+	    min_sal = request.form['min_sal']
+	else:
+	    min_sal= 3000
 	try:
-	    result = run_in_separate_process(optimizer, locks=locks, exclusions=excludes, delta=int(delta))
+	    result = run_in_separate_process(optimizer, locks=locks, exclusions=excludes, delta=int(delta), min_own=min_own, min_dvp=min_dvp, min_sal=min_sal, max_own=max_own)
 	    #result = optimizer(locks=locks, exclusions=excludes, delta=int(delta))
             return render_template('layout.html', data=result)
 	    #return render_template('layout.html', data=["<--- Your lineup!"])
