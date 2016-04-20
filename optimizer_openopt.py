@@ -14,6 +14,7 @@ import csv
 from pprint import pprint
 import datetime
 from proj_elastic import InsertProj
+from fuzzywuzzy import process
 #from datetime import datetime, timedelta
 
 
@@ -28,28 +29,51 @@ def load_projections(projections_file):
         for row in reader:
             projections[row[0]] = float(row[1])
     return projections
+
+''' fuzzy match 
+    inputs - list of strings typed by user
+           - list of options for players
+    outputs - list of fuzzy matched strings
+'''
+def fuzzy_match(inputlist, choices):
+    outlist = []
+    for s in inputlist:
+	fz = process.extractOne(s, choices)
+	outlist.append(fz[0])
+    return(outlist)
+	
         
 
-def optimizer(locks=[], exclusions=[], delta=0):
+def optimizer(locks=[], exclusions=[], delta=0, min_own=0, min_dvp=0, min_sal=3000, max_own=100):
 
     adjustments={}
 
     items = []
     player_ids = {}
-    today = datetime.datetime.today() - datetime.timedelta(hours=4)
+    today = datetime.datetime.today() - datetime.timedelta(hours=8)
     path = '/home/ubuntu/dfsharp/opt_csvs/'+today.strftime('%Y%m%d')+'_opt.csv'
     #path = '/home/ubuntu/dfsharp/opt_csvs/20160329_opt.csv'
-
     abblist = ['bkn', 'bos', 'cha', 'chi', 'cle', 'dal', 'den', 'det', 'hou',
        'ind', 'lac', 'lal', 'mem', 'mia', 'mil', 'min', 'nor', 'nyk',
        'okc', 'orl', 'phi', 'pho', 'por', 'sac', 'sas', 'tor', 'uta',
        'was', 'atl', 'gsw']
 
+    # read csv of players
+    df = pd.read_csv(path)
+    playernames = df['name'].tolist()
+    teamnames = list(df['Team'].unique())
+    if len(locks) > 0:
+	locks = fuzzy_match(locks, playernames)
+    # loop through exclusions, fuzzy teams one way and players another
+    if len(exclusions) > 0:
+	combo = teamnames + playernames
+	exclusions = fuzzy_match(exclusions, combo)
+
     with open(path, 'r') as csvfile:
         reader = csv.reader(csvfile)
         index = 0
         for row in reader:
-            if (index != 0) and (row[1] not in exclusions) and (row[11] not in exclusions):
+            if (row[1] in locks) or ( (index != 0) and (row[1] not in exclusions) and (row[11] not in exclusions) and (float(row[13]) >= float(min_own)) and (float(row[13]) <= float(max_own)) and (float(row[16]) >= float(min_dvp)) and (float(row[4]) > 5) and (float(row[2]) > float(min_sal)) ):
                 vals = { 
                         'id': index-1,
                         'PG': 1 if row[0] == 'PG' else 0,
@@ -63,7 +87,9 @@ def optimizer(locks=[], exclusions=[], delta=0):
                         'min_proj': float(row[8]) if row[1] not in adjustments.keys() else adjustments[row[1]],
                         'dk_per_min': float(row[9]) if row[1] not in adjustments.keys() else adjustments[row[1]],
 			'lock': 1 if row[1] in locks else 0,
-			'ownership': float(row[13]) if row[1] not in adjustments.keys() else adjustments[row[1]]
+			'ownership': float(row[13]) if row[1] not in adjustments.keys() else adjustments[row[1]],
+			'dvprank': float(row[16]) if row[1] not in adjustments.keys() else adjustments[row[1]],
+			'otprank': float(row[17]) if row[1] not in adjustments.keys() else adjustments[row[1]]
                         }
 		for team in abblist:
 		    vals[team] = 1 if row[11] == team else 0
@@ -86,7 +112,6 @@ def optimizer(locks=[], exclusions=[], delta=0):
                               values['salary'] < 50000, 
 			      values['salary'] > 49500,
                               values['nItems'] == 8, 
-			      values['ind'] <= 2,
 			      #values['gsw'] <= 2,
                               values['PG'] >= 1,
                               values['PG'] <= 2,
@@ -109,10 +134,8 @@ def optimizer(locks=[], exclusions=[], delta=0):
                                   # values['mass'] + 4*values['volume'] < 100
     #objective = 'ownership'
     # we could use lambda-func, e.g. 
-    #objective = lambda val: .01*val['min_proj']+val['fpts']
-    #objective = lambda val: -.5*val['ownership']+val['fpts']
-    objective = lambda val: val['fpts']+ delta*val['ownership']
-    # objective = lambda val: 5*value['cost'] - 2*value['volume'] - 5*value['mass'] + 3*val['nItems']
+    objective = lambda val: val['fpts'] + delta*val['otprank']
+    #objective = lambda val: val['fpts'] + delta*val['ownership']
     p = KSP(objective, items, goal = 'max', constraints = constraints) 
     r = p.solve('glpk', iprint = 0) # requires cvxopt and glpk installed, see http://openopt.org/KSP for other solvers
     ''' Results for Intel Atom 1.6 GHz:
@@ -129,7 +152,7 @@ def optimizer(locks=[], exclusions=[], delta=0):
     playerlist = r.xf
 
     # r.xf is a list of players- we will merge their info back and return a DF instead
-    df = pd.read_csv(path)
+    #df = pd.read_csv(path)
     df2 = df[df['name'].isin(playerlist)]
     #print(df2)
 
