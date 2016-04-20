@@ -1,10 +1,7 @@
 # coding: utf-8
-
-# In[70]:
-
 import pandas as pd
-import matplotlib as plt
-# import seaborn as sns
+import matplotlib.pyplot as plt
+import seaborn as sns
 import numpy as np
 from patsy import dmatrices
 import statsmodels.api as sm
@@ -18,21 +15,32 @@ from collections import defaultdict
 from collections import OrderedDict
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
-import cnfg
-pd.set_option("display.max_rows",300)
+#pd.set_option("display.max_rows",300)
+#pd.set_option("display.max_columns",300)
+'''
+from sklearn.cluster import KMeans
+from sklearn.cluster import AgglomerativeClustering
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import scale
+from scipy import stats
+import matplotlib.pyplot as plt
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import LinearRegression
 
-from proj_elastic import InsertLogs
-#get_ipython().magic(u'matplotlib inline')
 
+print(__doc__)
+
+from sklearn import ensemble
+from sklearn import datasets
+from sklearn.utils import shuffle
+from sklearn.metrics import mean_squared_error
+
+get_ipython().magic(u'matplotlib inline')
+'''
 
 # In[2]:
-
-
 config = cnfg.load("/home/ubuntu/dfsharp/.rotoguru_config")
 url = config["url"]
-
-
-# In[3]:
 
 def daily_download():
     # read in the user and key from config file   
@@ -58,11 +66,11 @@ def daily_download():
     # only train on players who played > 0 minutes (keep today's players in frame)
     today = datetime.today()
     df = df[(df['Minutes'] > 0) | (df['index'] == today.strftime('%Y%m%d'))]
-
-
-
     
     return(df)
+
+
+# In[3]:
 
 def make_dvp(df):
     # create sportvu clusters
@@ -71,9 +79,13 @@ def make_dvp(df):
     df['Cluster Position Off'] = df['Cluster Position Off'].fillna(df['dk_pos'])
     df['kpos'] = df['Cluster Position Off']
     return(df)
+
+
 # In[4]:
 
-# make these into 1 function that takes- DF, DateNum, ColToAvg
+# total active games per player
+def active_games(x):
+    return df[(df['index'] >= x['index'] - pd.DateOffset(350)) & (df['index'] < x['index']) & (df['name'] == x['name'])].active.sum()
 # avg minutes past 7 days
 def min_avg_7_days(x):
     return df[(df['index'] >= x['index'] - pd.DateOffset(7)) & (df['index'] < x['index']) & (df['name'] == x['name'])].Minutes.mean()
@@ -95,7 +107,6 @@ def dk_std_90_days(x):
 # draftkings local MAX
 def dk_max_30_days(x):
     return df[(df['index'] >= x['index'] - pd.DateOffset(30)) & (df['index'] < x['index']) & (df['name'] == x['name'])].DKP.max()
-
 # create avg minutes when starting
 def min_when_starting(x):
     return df[(df['index'] >= x['index'] - pd.DateOffset(150)) & (df['Start'] == 1) & (df['index'] < x['index']) & (df['name'] == x['name'])].Minutes.mean()
@@ -104,32 +115,65 @@ def min_when_bench(x):
     return df[(df['index'] >= x['index'] - pd.DateOffset(150)) & (df['Start'] == 0) & (df['index'] < x['index']) & (df['name'] == x['name'])].Minutes.mean()
 def starts_past_week(x):
     return df[(df['index'] >= x['index'] - pd.DateOffset(7)) & (df['index'] < x['index']) & (df['name'] == x['name'])].Start.sum()
-
 # if they're starting today, and they have <= 1 start in past 7 days, use min_when_start instead
 def adjust_minutes(row):
-    if (row['Start'] == True) and (row['starts_past_week'] <= 1) and (row['min_when_start'] > row['min_7d_avg']):
+    if (row['Start'] == True) and (row['starts_past_week'] <= 1) and (row['min_when_start'] > row['min_3g_avg']):
         return(row['min_when_start'])
     else:
-        return(row['min_7d_avg'])
+        return(row['min_3g_avg'])
 # create DKP allowed vs each position by team
 def dvp(x):
-    return df[(df['index'] >= x['index'] - pd.DateOffset(180)) & (df['index'] < x['index']) & (df['Opp'] == x['Opp']) & (df['kpos'] == x['kpos'])]['DKP'].mean()
-   
-
-# In[5]:
-
-# player's total double doubles [NOT WORKING]
-#def opp_pts_90_days(x):
-#    return df[(df['index'] >= x['index'] - pd.DateOffset(90)) & (df['index'] < x['index']) & (df['Opp'] == x['Opp'])]['team_pts'].mean()
-
-
-# In[6]:
+    return df[(df['index'] >= x['index'] - pd.DateOffset(180)) & (df['index'] < x['index']) & (df['Opp'] == x['Opp']) & (df['kpos'] == x['kpos'])]['DKP'].mean()  
+# minutes yesterday 
+def min_yest(x):
+    return df[(df['index'] >= x['index'] - pd.DateOffset(1)) & (df['index'] < x['index']) & (df['name'] == x['name'])].Minutes.mean()
+# create back to back boolean
+def create_b2b_bool(row):
+    if row['min_yest'] > 30:
+        return(1)
+    else:
+        return(0)
+# 1) need Team MP, Team FGA, team FTA, team TOV for usage
+def team_mp(x):
+    return df[(df['index'] == x['index']) & (df['Team'] == x['Team'])]['Minutes'].sum()  
+def team_fga(x):
+    return df[(df['index'] == x['index']) & (df['Team'] == x['Team'])]['fga'].sum() 
+def team_fta(x):
+    return df[(df['index'] == x['index']) & (df['Team'] == x['Team'])]['fta'].sum() 
+def team_tov(x):
+    return df[(df['index'] == x['index']) & (df['Team'] == x['Team'])]['tov'].sum() 
+# USAGE: 100 * ((FGA + 0.44 * FTA + TOV) * (Tm MP / 5)) / (MP * (Tm FGA + 0.44 * Tm FTA + Tm TOV)). 
+def usage(x):
+    usage = 100 * ( (x['fga'] + 0.44 * x['fta'] + x['tov']) * (x['team_mp'] / 5) ) / (x['Minutes'] * (x['team_fga'] + 0.44 * x['team_fta'] + x['team_tov']))
+    return(usage)
+def usage_3g_avg(x):
+    return df[(df['gp'] >= x['gp'] - 3) & (df['gp'] < x['gp']) & (df['name'] == x['name'])].usage.mean()
+def usage_5g_avg(x):
+    return df[(df['gp'] >= x['gp'] - 5) & (df['gp'] < x['gp']) & (df['name'] == x['name'])].usage.mean()
+# historical value
+def value(x):
+    val = x['DKP'] / (x['dk_sal'] / 1000)
+    return(val)
+def value_3g_avg(x):
+    return df[(df['gp'] >= x['gp'] - 3) & (df['gp'] < x['gp']) & (df['name'] == x['name'])].value.mean()
+def min_3g_avg(x):
+    return df[(df['gp'] >= x['gp'] - 3) & (df['gp'] < x['gp']) & (df['name'] == x['name'])].Minutes.mean()
+def starter_min(x):
+    return df[(df['index'] == x['index']) & (df['Team'] == x['Team']) & df['Start'] == 1].Minutes.mean()
+def starter_5g_avg(x):
+    return df[(df['gp'] >= x['gp'] - 5) & (df['gp'] < x['gp']) & (df['name'] == x['name'])].starter_min.mean()
+# minutes vs starters 5 game average
+def mvs_5g_avg(x):
+    return df[(df['gp'] >= x['gp'] - 5) & (df['gp'] < x['gp']) & (df['name'] == x['name'])].min_vs_starters.mean()
 
 ''' add_stats- adds stats
     input: dataframe sorted ascending by dates
     outputs: same frame with added stat columns
 '''
 def add_stats(df):
+    
+    df['gp'] = df.apply(active_games, axis=1)
+    df['min_3g_avg'] = df.apply(min_3g_avg, axis=1)
 
     df['min_7d_avg'] = df.apply(min_avg_7_days, axis=1)
     df['min_90d_avg'] = df.apply(min_avg_90_days, axis=1)
@@ -145,7 +189,6 @@ def add_stats(df):
     # create standard dev and max columns
     df['dk_std_90_days'] = df.apply(dk_std_90_days, axis=1)
     df['dk_max_30_days'] = df.apply(dk_max_30_days, axis=1)
-
     # get min when starting / bench
     df['min_when_start'] = df.apply(min_when_starting, axis=1)
     df['min_when_bench'] = df.apply(min_when_bench, axis=1)
@@ -170,15 +213,46 @@ def add_stats(df):
     df['ftm'] = df['Stats'].str.extract('(\d*)-\d*ft')
     df['fta'] = df['Stats'].str.extract('\d*-(\d*)ft')
     df['tov'] = df['Stats'].str.extract('(\d*)to')
-    #df[['pts','rbs','stl','ast','blk','3pm','fgm','fga','ftm','fta','tov']] = df[['pts','rbs','stl','ast','blk','3pm','fgm','fga','ftm','fta','tov']].apply(lambda x: pd.to_numeric(x, errors='coerce'))
-    #df[['pts','rbs','stl','ast','blk','3pm','fgm','fga','ftm','fta','tov']].fillna(0, inplace=True)
-
-    #df.to_csv('/home/ubuntu/dfsharp/gamelogs/20160326_gamelogs.csv')
+    df[['pts','rbs','stl','ast','blk','3pm','fgm','fga','ftm','fta','tov']] = df[['pts','rbs','stl','ast','blk','3pm','fgm','fga','ftm','fta','tov']].apply(lambda x: pd.to_numeric(x, errors='coerce'))
+    df[['pts','rbs','stl','ast','blk','3pm','fgm','fga','ftm','fta','tov']].fillna(0, inplace=True)
+    
+    # add yesterdays minutes
+    df['min_yest'] = df.apply(min_yest, axis=1)
+    # create back to back boolean column [over 30 minutes played the prior day]
+    df['b2b'] = df.apply(create_b2b_bool, axis=1)
+    
+    # fillna just in case
+    df['Minutes'] = df['Minutes'].fillna(value=0)
+    df['fga'] = df['fga'].fillna(value=0)
+    df['fta'] = df['fta'].fillna(value=0)
+    df['tov'] = df['tov'].fillna(value=0)
+    
+    # add team stats for usage calc
+    df['team_mp'] = df.apply(team_mp, axis=1)
+    df['team_fga'] = df.apply(team_fga, axis=1)
+    df['team_fta'] = df.apply(team_fta, axis=1)
+    df['team_tov'] = df.apply(team_tov, axis=1)
+    
+    # add individual usage / 3 game rolling avg
+    df['usage'] = df.apply(usage, axis=1)
+    df['usage_3g_avg'] = df.apply(usage_3g_avg, axis=1)
+    df['usage_5g_avg'] = df.apply(usage_5g_avg, axis=1)
+    
+    # add value / 3 game rolling avg for val
+    df['value'] = df.apply(value, axis=1)
+    df['value_3g_avg'] = df.apply(value_3g_avg, axis=1)
+    
+    # add starter min - average minutes played of all the starters
+    df['starter_min'] = df.apply(starter_min, axis=1)
+    
+    # add game by game minutes vs starter average
+    df['min_vs_starters'] = df['Minutes'] - df['starter_min']
+    df['mvs_5g_avg'] = df.apply(mvs_5g_avg, axis=1)
+    
+    # add 3game average of starter minutes
+    df['starter_5g_avg'] = df.apply(starter_5g_avg, axis=1)
     
     return(df)
-
-
-# In[65]:
 
 ''' train_model - trains linear regression on given df
     inputs: df - dataframe to train on
@@ -187,24 +261,19 @@ def add_stats(df):
     side-effects: prints summary statistics
                   pickles model
 '''
-def train_save_model(df, num=0, num2=20000):
+def train_save_model(df, num=0,num2=20000):
     # train on most recent 30 days?
-    #num2=len(df)
-    train = df[num:num2].dropna(subset=['DKP_trans','Start','min_proj','dk_per_min','home','dvp'])  
-    Y_train, X_train = dmatrices('''DKP_trans ~  Start + min_proj  + dk_per_min + dvp
-                                 + home   
-                                 
+    train = df[num:num2].dropna(subset=['DKP_trans','Start','dk_avg_90_days','home','dvp','usage_5g_avg','min_proj'])  
+    Y_train, X_train = dmatrices('''DKP_trans ~  Start  + dk_avg_90_days + dvp + usage_5g_avg 
+                                 + home + min_proj
                  ''', data=train, return_type='dataframe')
     
     model = sm.OLS(Y_train, X_train)
     results = model.fit()
     print(results.summary())
-    path = '/home/ubuntu/dfsharp/latest_model.p'
+    path = '/home/ubuntu/dfsharp/latest_model1.p'
     pickle.dump(results, open(path, "wb") )
     return(results)
-
-
-    
 
 # A) daily download 
 df = daily_download()
@@ -221,10 +290,11 @@ todays_players = df[df['index'] == today.strftime('%Y%m%d')]
 csvpath = '/home/ubuntu/dfsharp/csvs/'+today.strftime('%Y%m%d')+'_players.csv'
 todays_players.to_csv(csvpath)
 
-# E) train and save model
-train_save_model(df, 13000, 20500)
+# E) train and save the model
+yo = train_save_model(df, 13000,20500)
 
 # F) insert gamelogs into elasticsearc
-InsertLogs(df, indexer="gamelogs")
-#not_today = df[df['index'] != today.strftime('%Y%m%d')]
+not_today = df[df['index'] != today.strftime('%Y%m%d')]
 #not_today.to_csv('gamelogs.csv')
+InsertLogs(not_today, indexer="gamelogs")
+
