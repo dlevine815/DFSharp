@@ -21,6 +21,7 @@ from fuzzywuzzy import process
 import cnfg
 pd.set_option("display.max_rows",300)
 
+from proj_elastic import InsertLogs
 #get_ipython().magic(u'matplotlib inline')
 
 
@@ -186,9 +187,10 @@ def add_stats(df):
     side-effects: prints summary statistics
                   pickles model
 '''
-def train_save_model(df, num=0):
+def train_save_model(df, num=0, num2=20000):
     # train on most recent 30 days?
-    train = df[num:].dropna(subset=['DKP_trans','Start','min_proj','dk_per_min','home','dvp'])  
+    #num2=len(df)
+    train = df[num:num2].dropna(subset=['DKP_trans','Start','min_proj','dk_per_min','home','dvp'])  
     Y_train, X_train = dmatrices('''DKP_trans ~  Start + min_proj  + dk_per_min + dvp
                                  + home   
                                  
@@ -202,8 +204,7 @@ def train_save_model(df, num=0):
     return(results)
 
 
-# In[11]:
-
+    
 
 # A) daily download 
 df = daily_download()
@@ -221,4 +222,9 @@ csvpath = '/home/ubuntu/dfsharp/csvs/'+today.strftime('%Y%m%d')+'_players.csv'
 todays_players.to_csv(csvpath)
 
 # E) train and save model
-train_save_model(df, 14000)
+train_save_model(df, 13000, 20500)
+
+# F) insert gamelogs into elasticsearc
+InsertLogs(df, indexer="gamelogs")
+#not_today = df[df['index'] != today.strftime('%Y%m%d')]
+#not_today.to_csv('gamelogs.csv')
