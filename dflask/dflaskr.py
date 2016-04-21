@@ -2,14 +2,32 @@ from __future__ import with_statement
 import pandas as pd
 import numpy as np
 import pickle
-from flask import Flask, render_template, redirect, url_for, request, abort
+from flask import Flask, render_template, redirect, url_for, request, abort, jsonify
 import sys
 sys.path.append('/home/ubuntu/dfsharp/')
 
 from optimizer_openopt import optimizer
-
+from optimizer_openopt import fuzzy_match
+from datetime import datetime, timedelta
 
 import os, cPickle
+
+# adjust_minutes
+# reads in file from generate_model
+# adjusts min_proj for a specific player
+def adjust_minutes(player, minutes):
+    today = datetime.today() - timedelta(hours=4)
+    filename = today.strftime('%Y%m%d')+'_players.csv'
+    path = '/home/ubuntu/dfsharp/csvs/'+filename
+    df = pd.read_csv(path)
+    # fuzzy match requested player
+    playernames = df['name'].tolist()
+    playername = fuzzy_match(player, playernames)
+    df.loc[df.name == playername, 'min_3g_avg'] = float(minutes)
+    df.to_csv(path)
+    return([player, minutes])
+    
+    
 
 
 def run_in_separate_process(func, *args, **kwds):
@@ -42,46 +60,68 @@ def run_in_separate_process(func, *args, **kwds):
 
 app = Flask(__name__)
 
+@app.route('/u')
+def pre2():
+    # get locks field
+    tx = request.args.get('uu', 0, type=str)
+    if len(tx) > 0:
+	splist = tx.split(", ")
+        player = splist[0]
+	minutes = splist[1]
+	data = adjust_minutes(player, minutes)
+    	return jsonify(result=data)
+    else:
+	return jsonify(result=['No adjustment made'])
+
+
+
+@app.route('/t')
+def pre():
+    # get locks field
+    tx = request.args.get('aa', 0, type=str)
+    locks = []
+    if len(tx) > 0:
+	locks = tx.split(", ")
+    # get excludes
+    ex = request.args.get('bb', 0, type=str)
+    excludes = []
+    if len(ex) > 0:
+	excludes = ex.split(", ")
+    # get min ownership
+    min_own = 0
+    mo = request.args.get('cc', 0, type=int)
+    if mo > 0:
+	min_own = mo
+    # get max ownership
+    max_own = 100
+    maxo = request.args.get('dd', 0, type=int)
+    if maxo <100 and maxo >0:
+	max_own = maxo
+    # get min dvp
+    min_dvp = 0
+    md = request.args.get('ee', 0, type=int)
+    if md > 0 and md <= 5:
+	min_dvp = md
+    # get min salary
+    min_sal = 3000
+    ms = request.args.get('ff', 0, type=int)
+    if ms > 3000 and ms < 10000:
+	min_sal = ms
+    # get delta
+    delta = 5
+    ds = request.args.get('gg', 0, type=int)
+    if ds < 5 and ds >= -5:
+	delta = ds
+   
+    data = run_in_separate_process(optimizer, locks=locks, exclusions=excludes, delta=int(delta), min_own=min_own, min_dvp=min_dvp, min_sal=min_sal, max_own=max_own)
+    return(data)
+
 @app.route('/', methods=['GET', 'POST'])
 def home_page():
     locks = []
     excludes = []
     if request.method == 'POST':
 	print "HOME PAGE POST"
-        if request.form['locks'] and request.form['excludes']:
-            lockstring = request.form['locks']
-	    locks = lockstring.split(", ")
-            exstring = request.form['excludes']
-	    excludes = exstring.split(", ")
-        elif request.form['locks']:
-            locks = request.form['locks'].split(", ")
-        elif request.form['excludes']:
-            excludes = request.form['excludes'].split(", ")
-
-	delta = request.form['slider']
-	if request.form['min_ownership']:
-	    min_own = request.form['min_ownership']
-	else:
-	    min_own = 0
-	if request.form['min_dvp']:
-	    min_dvp = request.form['min_dvp']
-	else:
-	    min_dvp = 0
-	if request.form['max_own']:
-	    max_sal = request.form['max_own']
-	else:
-	    max_own = 100
-	if request.form['min_sal']:
-	    min_sal = request.form['min_sal']
-	else:
-	    min_sal= 3000
-	try:
-	    result = run_in_separate_process(optimizer, locks=locks, exclusions=excludes, delta=int(delta), min_own=min_own, min_dvp=min_dvp, min_sal=min_sal, max_own=max_own)
-	    #result = optimizer(locks=locks, exclusions=excludes, delta=int(delta))
-            return render_template('layout.html', data=result)
-	    #return render_template('layout.html', data=["<--- Your lineup!"])
-	except:
-	    return render_template('layout.html', data=["Sorry, no lineup found"])
     else:
         print "HOME PAGE GET"
         return render_template('layout.html')

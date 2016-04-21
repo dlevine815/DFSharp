@@ -15,12 +15,7 @@ from pprint import pprint
 import datetime
 from proj_elastic import InsertProj
 from fuzzywuzzy import process
-#from datetime import datetime, timedelta
-
-
-import objgraph
-import gc
-
+import numpy as np
 
 def load_projections(projections_file):
     projections = {}
@@ -36,11 +31,15 @@ def load_projections(projections_file):
     outputs - list of fuzzy matched strings
 '''
 def fuzzy_match(inputlist, choices):
-    outlist = []
-    for s in inputlist:
-	fz = process.extractOne(s, choices)
-	outlist.append(fz[0])
-    return(outlist)
+    if (type(inputlist) == str):
+	fz = process.extractOne(inputlist, choices)
+	return(fz[0])
+    else:
+        outlist = []
+	for s in inputlist:
+	    fz = process.extractOne(s, choices)
+	    outlist.append(fz[0])
+        return(outlist)
 	
         
 
@@ -50,16 +49,22 @@ def optimizer(locks=[], exclusions=[], delta=0, min_own=0, min_dvp=0, min_sal=30
 
     items = []
     player_ids = {}
-    today = datetime.datetime.today() - datetime.timedelta(hours=8)
+    today = datetime.datetime.today() - datetime.timedelta(hours=4)
+    yesterday = today - datetime.timedelta(hours=24)
     path = '/home/ubuntu/dfsharp/opt_csvs/'+today.strftime('%Y%m%d')+'_opt.csv'
-    #path = '/home/ubuntu/dfsharp/opt_csvs/20160329_opt.csv'
+    ypath = '/home/ubuntu/dfsharp/opt_csvs/'+yesterday.strftime('%Y%m%d')+'_opt.csv'
     abblist = ['bkn', 'bos', 'cha', 'chi', 'cle', 'dal', 'den', 'det', 'hou',
        'ind', 'lac', 'lal', 'mem', 'mia', 'mil', 'min', 'nor', 'nyk',
        'okc', 'orl', 'phi', 'pho', 'por', 'sac', 'sas', 'tor', 'uta',
        'was', 'atl', 'gsw']
 
     # read csv of players
-    df = pd.read_csv(path)
+    try:
+	df = pd.read_csv(path)
+    except IOError:
+	df = pd.read_csv(ypath)
+	path = ypath
+
     playernames = df['name'].tolist()
     teamnames = list(df['Team'].unique())
     if len(locks) > 0:
@@ -148,20 +153,18 @@ def optimizer(locks=[], exclusions=[], delta=0, min_own=0, min_dvp=0, min_sal=30
     Solver:   Time Elapsed = 0.82   CPU Time Elapsed = 0.82
     objFunValue: 27.389749 (feasible, MaxResidual = 0)
     '''
-    print(r.xf) 
+    #print(r.xf) 
     playerlist = r.xf
 
     # r.xf is a list of players- we will merge their info back and return a DF instead
-    #df = pd.read_csv(path)
     df2 = df[df['name'].isin(playerlist)]
-    #print(df2)
+    # df2 is the latest lineup - we'll return the frame [for now]
+    df2[['DK_Proj','min_proj','dk_per_min','value','usage_5g_avg']] = np.round(df2[['DK_Proj','min_proj','dk_per_min','value','usage_5g_avg']],1)
+    ajax = df2[['numpos','name','Team','Opp','dk_sal','ownership','DK_Proj','dvprank','min_proj','dk_per_min','value','usage_5g_avg']].to_json(orient='records')
+    #ajax = df2.to_html(index=False)
 
     InsertProj(df2, indexer="latestlineup")
+    #return(playerlist)
+    return(ajax)
 
-    #gc.collect()
-    #print(objgraph.show_most_common_types())
-    
-    return(playerlist)
-
-#optimizer(locks=['Kobe Bryant','Avery Bray'])
 
