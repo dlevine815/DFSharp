@@ -10,31 +10,36 @@
 <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
 <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
 <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
-<!--<link rel="stylesheet" type="text/css" href="http://www.eyecon.ro/bootstrap-slider/css/slider.css">
-  <link rel="stylesheet" type="text/css" href="http://www.eyecon.ro/bootstrap-slider/css/bootstrap.css">-->
 
-  <!--<link rel=stylesheet type=text/css href="{{ url_for('static', filename='slider.css') }}">-->
-  <!--<link rel=stylesheet type=text/css href="{{ url_for('static', filename='bootstrap.css') }}">-->
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.11/css/jquery.dataTables.css">
+  
+
 
     <title>DFSharp</title>
 
 </head>
 <body>
 
+    <h1 id='sharptitle'>Welcome to DFSharp!</h1>
 <div class="wrap">
-    <div class="fleft">
+    <!--<div class="fright">-->
 
-<!--<iframe src="http://52.38.36.24:5601/app/kibana#/dashboard/Projections?_g=(refreshInterval:(display:'1%20minute',pause:!f,section:2,value:60000),time:(from:now-7d,mode:quick,to:now))&_a=(filters:!(),options:(darkTheme:!t),panels:!((col:9,id:Ownership-Over-Time,panelIndex:10,row:5,size_x:4,size_y:4,type:visualization),(col:9,id:Stacked_Bar_Value,panelIndex:12,row:13,size_x:4,size_y:5,type:visualization),(col:9,id:LineupViz,panelIndex:16,row:1,size_x:4,size_y:4,type:visualization),(col:1,columns:!(player,news),id:ValuePlays,panelIndex:17,row:9,size_x:8,size_y:4,sort:!(published,desc),type:search),(col:1,id:AvgOwnership,panelIndex:18,row:3,size_x:2,size_y:2,type:visualization),(col:1,id:ProjSum,panelIndex:19,row:1,size_x:2,size_y:2,type:visualization),(col:1,columns:!(text),id:BaskMonster,panelIndex:22,row:5,size_x:8,size_y:4,sort:!(timestamp,desc),type:search),(col:3,columns:!(numpos,player,Team,dk_sal,ownership,DK_Proj,dvprank,value,min_proj,Opp),id:LatestLineup,panelIndex:23,row:1,size_x:6,size_y:4,sort:!(dk_sal,desc),type:search),(col:1,columns:!(player,dk_sal,numpos,Team,Opp,ownership,value,DK_Proj,min_proj,dk_per_min,opppts_avg,dvprank,home,Start,status),id:LatestProjections,panelIndex:24,row:13,size_x:8,size_y:5,sort:!(dk_sal,desc),type:search),(col:9,id:Top-10-Owned-Players,panelIndex:25,row:9,size_x:4,size_y:4,type:visualization),(col:1,columns:!(player,Team,Opp,Minutes,dk_sal,DKP,value,starts_past_week,Start,min_proj,pts,rbs,ast,blk,stl,tov,team_pts,opp_pts,dvprank,dk_change,dk_per_min,home),id:GameLogs,panelIndex:26,row:18,size_x:12,size_y:4,sort:!(timestamp,desc),type:search)),query:(query_string:(analyze_wildcard:!t,query:'*')),title:Projections,uiState:(P-10:(vis:(legendOpen:!f)),P-12:(vis:(colors:('Average%20DK_Proj':%237EB26D,'Average%20min_proj':%2365C5DB,'Average%20ownership':%23890F02,'Average%20value':%2365C5DB),legendOpen:!f)),P-16:(vis:(legendOpen:!f)),P-25:(vis:(legendOpen:!f))))" height="1600" width="100%"></iframe>-->
+
+<!--<iframe src="http://52.38.36.24:5601/app/kibana#/dashboard/Projections?_g=(refreshInterval:(display:'5%20seconds',pause:!f,section:1,value:5000),time:(from:now-7d,mode:quick,to:now))&_a=(filters:!(),options:(darkTheme:!t),panels:!((col:9,id:Ownership-Over-Time,panelIndex:10,row:5,size_x:4,size_y:4,type:visualization),(col:9,id:Stacked_Bar_Value,panelIndex:12,row:13,size_x:4,size_y:5,type:visualization),(col:1,columns:!(player,news),id:ValuePlays,panelIndex:17,row:11,size_x:8,size_y:4,sort:!(published,desc),type:search),(col:1,id:AvgOwnership,panelIndex:18,row:3,size_x:2,size_y:2,type:visualization),(col:1,id:ProjSum,panelIndex:19,row:1,size_x:2,size_y:2,type:visualization),(col:1,columns:!(text),id:BaskMonster,panelIndex:22,row:19,size_x:8,size_y:3,sort:!(timestamp,desc),type:search),(col:1,columns:!(player,Team,Opp,Minutes,dk_sal,DKP,value,starts_past_week,Start,min_proj,pts,rbs,ast,blk,stl,tov,team_pts,opp_pts,dvprank,dk_change,dk_per_min,home),id:GameLogs,panelIndex:26,row:15,size_x:8,size_y:4,sort:!(timestamp,desc),type:search),(col:1,id:Live-Projections,panelIndex:27,row:5,size_x:8,size_y:6,type:visualization),(col:3,id:Latest-Lineup,panelIndex:28,row:1,size_x:10,size_y:4,type:visualization),(col:9,id:Top-Owned-Players,panelIndex:29,row:9,size_x:4,size_y:4,type:visualization),(col:9,id:Ownership_By_Team,panelIndex:30,row:18,size_x:4,size_y:4,type:visualization),(col:1,id:Ownership_By_Position,panelIndex:31,row:22,size_x:12,size_y:4,type:visualization)),query:(query_string:(analyze_wildcard:!t,query:'*')),title:Projections,uiState:(P-10:(vis:(legendOpen:!f)),P-12:(vis:(colors:('Average%20DK_Proj':%237EB26D,'Average%20min_proj':%2365C5DB,'Average%20ownership':%23890F02,'Average%20value':%2365C5DB),legendOpen:!f)),P-29:(vis:(legendOpen:!f)),P-30:(vis:(legendOpen:!f)),P-31:(vis:(legendOpen:!f))))" height="1600" width="100%"></iframe>-->
 
 
 <!--<iframe src="http://52.38.36.24:5601/app/kibana#/dashboard/Mobile?embed=true&_g=(refreshInterval:(display:'5%20minutes',pause:!t,section:2,value:300000),time:(from:now-1d%2Fd,mode:quick,to:now-1d%2Fd))&_a=(filters:!(),options:(darkTheme:!f),panels:!((col:1,id:Latest-Lineup,panelIndex:1,row:1,size_x:12,size_y:4,type:visualization),(col:1,id:Live-Projections,panelIndex:2,row:5,size_x:12,size_y:7,type:visualization)),query:(query_string:(analyze_wildcard:!t,query:'*')),title:Mobile,uiState:())" height="1600" width="100%"></iframe>-->
 
+<!-- begin left frame- intitialize datatables-->
+<!--<table border="1" id="table_id" class="display dataTable">  <thead>    <tr style="width: 100%;">      <th></th>      <th>name</th>      <th>Minutes</th>      <th>Start</th>      <th>active</th>      <th>DKP</th>      <th>Team</th>      <th>Opp</th>      <th>dk_sal</th>      <th>min_7d_avg</th>    </tr>  </thead>  <tbody>    <tr>      <th>25728</th>      <td>Tim Hardaway Jr.</td>      <td>15.750000</td>      <td>0</td>      <td>1</td>      <td>20.50</td>      <td>atl</td>      <td>was</td>      <td>3000</td>      <td>18.661111</td>    </tr>    <tr>      <th>25729</th>      <td>Kent Bazemore</td>      <td>21.416667</td>      <td>1</td>      <td>1</td>      <td>22.00</td>      <td>atl</td>      <td>was</td>      <td>5100</td>      <td>27.375000</td>    </tr>    <tr>      <th>25730</th>      <td>Thabo Sefolosha</td>      <td>24.183333</td>      <td>0</td>      <td>1</td>      <td>15.25</td>      <td>atl</td>      <td>was</td>      <td>3000</td>      <td>24.883333</td>    </tr>    <tr>      <th>25731</th>      <td>Kris Humphries</td>      <td>11.100000</td>      <td>0</td>      <td>1</td>      <td>14.25</td>      <td>atl</td>      <td>was</td>      <td>3000</td>      <td>7.550000</td>    </tr>    <tr>      <th>25732</th>      <td>Al Horford</td>      <td>29.950000</td>      <td>1</td>      <td>1</td>      <td>36.00</td>      <td>atl</td>      <td>was</td>      <td>6400</td>      <td>32.822222</td>    </tr>  </tbody></table>-->
+
+
     </div>
-    <div class="fright">
+
+    <!--<div class="fleft">-->
 
     <div class="page">
-    <h1 id='sharptitle'>Welcome to DFSharp!</h1>
-	<p> To the left you'll find the latest lineup entered using our optimizer.</p>
+	<!--<p> To the left you'll find the latest lineup entered using our optimizer.</p>
 
 <p>below that is a live injury feed, and a graph of ownership over time.</p>
 
@@ -43,21 +48,9 @@
 <p>Keep in mind you can click on any player in a graph to filter on that player, search for a player or team [abbreviation] in the search bar at the top, and change the time frame for all panels in the top right-hand corner.</p>
 
 <p>enjoy!</p>
-
-
-    <h1 id='mytitle'>Lineup Optimizer</h1>
-<!--
-      <button type="submit" class="btn btn-success">Show me the lineup!</button>
-    </form>
-
-    {% if data %}
-	{% for d in data %}
-	   <li clas"list-group-item">{{ d }}
-	{% endfor %}
-    {% endif %}
-    </div>
 -->
 
+    <h1 id='mytitle'>Lineup Optimizer</h1>
 <form>
 <div class="form-group">
         <input type="text" class="form-control" name="locker" placeholder="Locks- e.g. Stephen Curry, Draymond Green"></div>
@@ -86,17 +79,61 @@
   <input type="range" data-highlight="true" name="sliderbar" id="ex1" value="0" min="-5" max="5" data-show-value="true">
 </div>
  
-<a href="javascript:void();" type="submit" id="cal">Show Me The Lineup!</a>
+<a href="javascript:void();" type="submit" id="cal">Show Me The Money!</a>
 </form>
-<span id="result">
+
+
+
+<form>
+<div class="form-group2">
+        <input type="text" class="form-control" name="minadjust" placeholder="Enter Adjustment (e.g. Kobe Bryant, 0)"></div>
+
+<a href="javascript:void();" type="submit" id="cal2">Adjust</a>
+</form>
+<span id="result2">
 
 </span>
+
+<table id="example" class="display" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+                <th>numpos</th>
+                <th>name</th>
+                <th>Team</th>
+                <th>Opp</th>
+                <th>dk_sal</th>
+                <th>ownership</th>
+                <th>DK_Proj</th>
+                <th>dvprank</th>
+                <th>minproj</th>
+                <th>dk_per_min</th>
+                <th>value</th>
+                <th>usage_5g_avg</th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+		<th>numpos</th>
+                <th>name</th>
+                <th>Team</th>
+                <th>Opp</th>
+                <th>dk_sal</th>
+                <th>ownership</th>
+                <th>DK_Proj</th>
+                <th>dvprank</th>
+                <th>minproj</th>
+                <th>dk_per_min</th>
+                <th>value</th>
+                <th>usage_5g_avg</th>
+            </tr>
+        </tfoot>
+    </table>
+
+
 
 
      <div>
 </div>
-
-  <!-- JQuery CDN -->
 
 
 <script>
@@ -113,38 +150,99 @@
 </script>
 
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
   <script type=text/javascript>
     $(function() {
-      $('a#cal').bind('click', function() {
-        $.getJSON('/t', {
-          aa: $('input[name="locker"]').val(),
-	  bb: $('input[name="excluder"]').val(),
-	  cc: $('input[name="minown"]').val(),
-	  dd: $('input[name="maxown"]').val(),
-	  ee: $('input[name="mindvp"]').val(),
-	  ff: $('input[name="minsal"]').val(),
-	  gg: $('input[name="sliderbar"]').val(),
+      $('a#cal2').bind('click', function() {
+        $.getJSON('/u', {
+	  uu: $('input[name="minadjust"]').val(),
         }, function(data) {
-          $('#result').html(data.result);
-          });
+          $('#result2').html(data.result);
+	              });
         return false;
       });
     });
   </script>
 
 
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
     <!-- Latest compiled and minified JavaScript -->
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 
-<script type='text/javascript'>
-$('#ex1').slider({
-	formatter: function(value) {
-		return 'Current value: ' + value;
-	}
-});
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.11/js/jquery.dataTables.js"></script>
+  <script type=text/javascript>
+
+    $(function() {
+       $('a#cal').bind('click', function() {
+		var aa = $('input[name="locker"]').val();
+	        var bb = $('input[name="excluder"]').val();
+	        var cc = $('input[name="minown"]').val();
+	        var dd = $('input[name="maxown"]').val();
+	        var ee = $('input[name="mindvp"]').val();
+	        var ff = $('input[name="minsal"]').val();
+	        var gg = $('input[name="sliderbar"]').val();
+	$('#example').dataTable( {
+		"destroy": "true",
+
+	  "ajax": {
+          "url": "/t?aa="+aa+"&bb="+bb+"&cc="+cc+"&dd="+dd+"&ee="+ee+"&ff="+ff+"&gg="+gg,
+	    "dataSrc": ""
+	  },
+	"aoColumns":[
+		{"mData":"numpos"},
+		{"mData":"name"},
+		{"mData":"Team"},
+		{"mData":"Opp"},
+		{"mData":"dk_sal"},
+		{"mData":"ownership"},
+		{"mData":"DK_Proj"},
+		{"mData":"dvprank"},
+		{"mData":"min_proj"},
+		{"mData":"dk_per_min"},
+		{"mData":"value"},
+		{"mData":"usage_5g_avg"},
+		]
+	} );
+       //   });
+        return false;
+      });
+    });
+  </script>
+
+
+<script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.11/js/jquery.dataTables.js"></script>
+<script type="text/javascript">
+$(document).ready( function () {
+	$('#example').dataTable( {
+	  "ajax": {
+	    "url": "/t?aa=&bb=&cc=&dd=&ee=&ff=&gg=0",
+	    "dataSrc": ""
+	  },
+	"aoColumns":[
+		{"mData":"numpos"},
+		{"mData":"name"},
+		{"mData":"Team"},
+		{"mData":"Opp"},
+		{"mData":"dk_sal"},
+		{"mData":"ownership"},
+		{"mData":"DK_Proj"},
+		{"mData":"dvprank"},
+		{"mData":"min_proj"},
+		{"mData":"dk_per_min"},
+		{"mData":"value"},
+		{"mData":"usage_5g_avg"},
+				]
+	} );
+} );
 </script>
+
+
+
+
+
 </body>
 
 </html>
