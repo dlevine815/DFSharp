@@ -43,7 +43,7 @@ def fuzzy_match(inputlist, choices):
 	
         
 
-def optimizer(locks=[], exclusions=[], delta=0, min_own=0, min_dvp=0, min_sal=3000, max_own=100):
+def optimizer(locks=[], exclusions=[], delta=0, min_own=0, min_dvp=0, min_sal=2000, max_own=100):
 
     adjustments={}
 
@@ -114,10 +114,9 @@ def optimizer(locks=[], exclusions=[], delta=0, min_own=0, min_dvp=0, min_sal=30
 
     constraints = lambda values: (
 			      values['lock'] == len(locks),
-                              values['salary'] < 50000, 
+                              values['salary'] < 50100, 
 			      values['salary'] > 49500,
                               values['nItems'] == 8, 
-			      #values['gsw'] <= 2,
                               values['PG'] >= 1,
                               values['PG'] <= 2,
                               values['SG'] >= 1,
