@@ -10,13 +10,36 @@ from optimizer_openopt import optimizer
 from optimizer_openopt import fuzzy_match
 from datetime import datetime, timedelta
 
+
 import os, cPickle
+
+
+# get_projections from opt csv
+def get_projections():
+    # global vars
+    today = datetime.today() - timedelta(hours=4)
+    yesterday = today - timedelta(hours=24)
+
+    filename = today.strftime('%Y%m%d')+'_opt.csv'
+    path = '/home/ubuntu/dfsharp/opt_csvs/'+filename
+    # read csv
+    try:
+	df = pd.read_csv(path)
+    except IOError:
+	df = pd.read_csv(ypath)
+	path = ypath
+    df = pd.read_csv(path)
+    df[['DK_Proj','min_proj','dk_per_min','value','usage_5g_avg']] = np.round(df[['DK_Proj','min_proj','dk_per_min','value','usage_5g_avg']],1)
+    ajax = df[['numpos','name','Team','Opp','dk_sal','ownership','DK_Proj','dvprank','min_proj','dk_per_min','value','usage_5g_avg']].to_json(orient='records')
+    print(ajax)
+    return(ajax)
+
+
 
 # adjust_minutes
 # reads in file from generate_model
 # adjusts min_proj for a specific player
 def adjust_minutes(player, minutes):
-    today = datetime.today() - timedelta(hours=4)
     filename = today.strftime('%Y%m%d')+'_players.csv'
     path = '/home/ubuntu/dfsharp/csvs/'+filename
     df = pd.read_csv(path)
@@ -60,6 +83,15 @@ def run_in_separate_process(func, *args, **kwds):
 
 app = Flask(__name__)
 
+# feeds latest projections into site
+@app.route('/v')
+def pre3():
+    # send projections in datatable format to webpage
+    data = get_projections()
+    return data
+
+
+# minutes adjustment api- takes input from field, adjusts minutes in file
 @app.route('/u')
 def pre2():
     # get locks field
@@ -69,10 +101,10 @@ def pre2():
         player = splist[0]
 	minutes = splist[1]
 	data = adjust_minutes(player, minutes)
+	print('ADJUSTED************************************: '+player+minutes)
     	return jsonify(result=data)
     else:
 	return jsonify(result=['No adjustment made'])
-
 
 
 @app.route('/t')
@@ -103,9 +135,9 @@ def pre():
     if md > 0 and md <= 5:
 	min_dvp = md
     # get min salary
-    min_sal = 3000
+    min_sal = 2000
     ms = request.args.get('ff', 0, type=int)
-    if ms > 3000 and ms < 10000:
+    if ms > 2000 and ms < 10000:
 	min_sal = ms
     # get delta
     delta = 5
