@@ -19,8 +19,6 @@ from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 from collections import defaultdict
 from collections import OrderedDict
-from fuzzywuzzy import fuzz
-from fuzzywuzzy import process
 import cnfg
 import tweepy
 from requests_oauthlib import OAuth1
@@ -81,7 +79,7 @@ days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sun
 day_nums = [x for x in range(7)]
 day_dict = dict(zip(days, day_nums))
 dict_day = dict(zip(day_nums, days))
-today = datetime.today()
+today = datetime.today() - timedelta(hours=8)
 daystr = dict_day[today.weekday()]
 
 
@@ -236,24 +234,48 @@ def adjust_status(row):
 
 # if we have no 7d info, use 90day info
 def rollback_minutes(row):
-    if pd.isnull(row['min_7d_avg']) == True:
+    if pd.isnull(row['min_3g_avg']) == True:
         return(row['min_90d_avg']*.90)
     else:
-        return(row['min_7d_avg'])
+        return(row['min_3g_avg'])
+
+def adjust_minutes(row):
+    if (row['starts_past_week'] <= 1) and (row['min_when_start'] > row['min_3g_avg']):
+	return(row['min_when_start'])
+    else:
+	return(row['min_3g_avg'])
     
+startlist = ['start', 'starting', 'STARTING', 'START']
+goodlist = ['probable','playing','PLAYING']
+qlist = ['questionable', '"?"','QUESTIONABLE']
+badlist = ['doubtful','out','miss','DOUBTFUL','OUT']
+ 
 # use status column to adjust min_proj
 def apply_status(row):
-    goodlist = ['probable', 'start', 'starting','playing','PLAYING','STARTING','START']
-    qlist = ['questionable', '"?"','QUESTIONABLE']
-    badlist = ['doubtful','out','miss','DOUBTFUL','OUT']
+       # doubtful, set minutes to 0
     if row['status'] in badlist:
         return(0.0)
+    # questionable, deduct 10%
     elif row['status'] in qlist:
         return(rollback_minutes(row)*.90)
-    elif row['status'] in goodlist:
-        return(rollback_minutes(row))
+    # starting --> set Start to true and apply minutes adjustment
+    elif row['status'] in startlist:
+        return(adjust_minutes(row))
     else:
         return(rollback_minutes(row))
+
+# use status column to adjust min_proj
+def start_status(row):
+       # doubtful, set minutes to 0
+    if row['status'] in badlist:
+        return(False)
+	# should find next starter :/
+    # starting --> set Start to true and apply minutes adjustment
+    elif row['status'] in startlist:
+        return(True)
+    else:
+        return(row['Start'])
+ 
     
 def zero_out(row):
     badlist = ['doubtful','out','miss','DOUBTFUL','OUT']
@@ -276,11 +298,10 @@ def zero_out(row):
 def read_injury_report(df):
     
     local_df = df
-    #local_df['min_proj'] = local_df['min_7d_avg']
     # add empty status column
     local_df['status'] = None
     
-    # adjust min_proj if min_7d is empty
+    # adjust min_proj if min_3g is empty
     local_df['min_proj'] = local_df.apply(rollback_minutes, axis=1)
     
     # get injury info
@@ -369,22 +390,27 @@ def merge_status(row):
 def merge_twitter_info(df):
     updates = get_twitter_updates()  
     # sort so newer entries will override older entries
-    updates.sort('datetime', inplace=True)
+    updates.sort_values(by='datetime', inplace=True)
 
     # extract name and status
     updates['name'] = updates.apply(get_name, axis=1)
     updates['get_status'] = updates.apply(get_status, axis=1)
     dropped = updates.dropna()
-    grouped = dropped.groupby('name')
-    single_status = pd.DataFrame()
-    for x,y in grouped:
-        single_status = single_status.append(y.tail(1))
-    tweets = single_status[['text','name','get_status']]
+    print(dropped)
+    if len(dropped) > 0:
+        grouped = dropped.groupby('name')
+        single_status = pd.DataFrame()
+        for x,y in grouped:
+            single_status = single_status.append(y.tail(1))
+        tweets = single_status[['text','name','get_status']]
         
-    merged_depth = pd.merge(left=df,right=single_status, how='left', left_on='name', right_on='name')
-    merged_depth['status'] = merged_depth.apply(merge_status, axis=1)
+        merged_depth = pd.merge(left=df,right=single_status, how='left', left_on='name', right_on='name')
+        merged_depth['status'] = merged_depth.apply(merge_status, axis=1)
     
-    return(merged_depth)
+        return(merged_depth)
+    else:
+	#df['status'] = 0
+	return(df)
     
 
 def OwnThePlay():
@@ -437,6 +463,7 @@ def OwnThePlay():
             raise
 
     df = pd.DataFrame.from_records(ownership_list, columns=['player','salary','ownership'])
+    df['otprank'] = pd.cut(df['ownership'], 5, labels=False)
     #print df
 
     #df.to_csv('/home/ubuntu/dfsharp/otp_csvs/otp_'+today+'.csv')
@@ -448,9 +475,16 @@ def OwnThePlay():
 	outputs - merged df
 '''
 def merge_otp(df):
-    otdf = OwnThePlay()
+    try: 
+    	otdf = OwnThePlay()
+    	df2 = pd.merge(left=df,right=otdf, how='left', left_on='name', right_on='player')
+    except:
+	df2 = df
+	df2['ownership'] = 0
+	df2['otprank'] = 0
+	df2['player'] = df['name']
+	print('OTP FAILED!!!')
 
-    df2 = pd.merge(left=df,right=otdf, how='left', left_on='name', right_on='player')
     return(df2)
 
 
@@ -466,13 +500,15 @@ def project_today(model, df):
     
     # adjust min_proj with status info
     df['min_proj'] = df.apply(apply_status, axis=1)
+    df['Start'] = df.apply(start_status, axis=1)
     
     today_df = df[['dk_pos','dk_sal','Team','name','status','Start','min_proj','ownership',
                    'min_7d_avg','dk_avg_90_days','dk_std_90_days','dk_max_30_days',
-                   'home','dk_per_min','opppts_avg']].dropna(subset=['dk_sal','Start','min_proj','dk_per_min','home','opppts_avg'])
+                   'home','dk_per_min','opppts_avg','Opp','dvp','dvprank','otprank',
+		   'kpos','min_3g_avg','starts_past_week','b2b','usage_3g_avg',
+		   'usage_5g_avg','value_3g_avg','mvs_5g_avg','starter_5g_avg']].dropna(subset=['dk_sal','Start','min_proj','dk_avg_90_days','home','dvp','usage_5g_avg'])
     # add intercept and convert all to numeric
-    Y_fake, features_real = dmatrices('''dk_sal ~ Start  + min_proj + dk_per_min 
-                                 + home + opppts_avg 
+    Y_fake, features_real = dmatrices('''dk_sal ~ Start  + min_proj + dk_avg_90_days + dvp + home + usage_5g_avg
                  ''', data=today_df, return_type='dataframe')
     
     # MAKE LIVE PROJECTIONS <3
@@ -482,6 +518,7 @@ def project_today(model, df):
     today_df['proj_pure'] = today_df['min_proj'] * today_df['dk_per_min']
     
     today_df['value'] = today_df['DK_Proj'] / (today_df['dk_sal'] / 1000) 
+    today_df['otp_value'] = today_df['ownership'] / (today_df['dk_sal'] / 1000)
     today_df['ceiling'] = today_df['DK_Proj'] + today_df['dk_std_90_days']
     
     today_df['DK_Proj'] = today_df.apply(zero_out, axis=1)
@@ -498,20 +535,21 @@ team_names = team_walk.team_long.tolist()
 # In[13]:
 
 # load latest model
-path = '/home/ubuntu/dfsharp/latest_model.p'
+path = '/home/ubuntu/dfsharp/latest_model1.p'
 model = pickle.load( open( path, "rb" ) )
 
 
 # In[14]:
 
 # get DF of todays players
+
 filename = today.strftime('%Y%m%d')+'_players.csv'
+#filename = '20160406_players.csv'
 path = '/home/ubuntu/dfsharp/csvs/'+filename
 todays_players = pd.read_csv(path)
 
 
 # In[15]:
-
 # 6) generate today's starters
 starters = init_starters(todays_players)
 
@@ -539,13 +577,15 @@ today_proj['numpos'] = today_proj['dk_pos'].map({1 : 'PG', 2 : 'SG', 3 : 'SF', 4
 today_proj.fillna(0, inplace=True, downcast='infer')
 
 hio = today_proj[['numpos','name','dk_sal','Start','DK_Proj','value','status',
-                  'ceiling','min_proj','dk_per_min','home','Team','opppts_avg','ownership']].to_csv(opt_path, index=False)
+                  'ceiling','min_proj','dk_per_min','home','Team','opppts_avg',
+		  'ownership','Opp','dvp','dvprank','otprank','otp_value','usage_5g_avg','mvs_5g_avg',
+		  'kpos','min_3g_avg','starts_past_week','b2b','usage_3g_avg',
+		   'usage_5g_avg','value_3g_avg','mvs_5g_avg','starter_5g_avg','proj_pure']].to_csv(opt_path, index=False)
 
 
 
 from proj_elastic import InsertProj
 
 InsertProj(today_proj)
-
 
 

@@ -1,7 +1,5 @@
 # coding: utf-8
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 import numpy as np
 from patsy import dmatrices
 import statsmodels.api as sm
@@ -9,34 +7,17 @@ import pickle
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 import requests
+import cnfg
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 from collections import defaultdict
 from collections import OrderedDict
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
-#pd.set_option("display.max_rows",300)
-#pd.set_option("display.max_columns",300)
-'''
-from sklearn.cluster import KMeans
-from sklearn.cluster import AgglomerativeClustering
-from sklearn.decomposition import PCA
-from sklearn.preprocessing import scale
-from scipy import stats
-import matplotlib.pyplot as plt
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.linear_model import LinearRegression
+from proj_elastic import InsertLogs
 
 
-print(__doc__)
 
-from sklearn import ensemble
-from sklearn import datasets
-from sklearn.utils import shuffle
-from sklearn.metrics import mean_squared_error
-
-get_ipython().magic(u'matplotlib inline')
-'''
 
 # In[2]:
 config = cnfg.load("/home/ubuntu/dfsharp/.rotoguru_config")
@@ -114,7 +95,7 @@ def min_when_starting(x):
 def min_when_bench(x):
     return df[(df['index'] >= x['index'] - pd.DateOffset(150)) & (df['Start'] == 0) & (df['index'] < x['index']) & (df['name'] == x['name'])].Minutes.mean()
 def starts_past_week(x):
-    return df[(df['index'] >= x['index'] - pd.DateOffset(7)) & (df['index'] < x['index']) & (df['name'] == x['name'])].Start.sum()
+    return df[(df['gp'] >= x['gp'] - 3) & (df['gp'] < x['gp']) & (df['name'] == x['name'])].Start.sum()
 # if they're starting today, and they have <= 1 start in past 7 days, use min_when_start instead
 def adjust_minutes(row):
     if (row['Start'] == True) and (row['starts_past_week'] <= 1) and (row['min_when_start'] > row['min_3g_avg']):
@@ -144,7 +125,12 @@ def team_tov(x):
     return df[(df['index'] == x['index']) & (df['Team'] == x['Team'])]['tov'].sum() 
 # USAGE: 100 * ((FGA + 0.44 * FTA + TOV) * (Tm MP / 5)) / (MP * (Tm FGA + 0.44 * Tm FTA + Tm TOV)). 
 def usage(x):
-    usage = 100 * ( (x['fga'] + 0.44 * x['fta'] + x['tov']) * (x['team_mp'] / 5) ) / (x['Minutes'] * (x['team_fga'] + 0.44 * x['team_fta'] + x['team_tov']))
+    try:
+        usage = 100 * ( (x['fga'] + 0.44 * x['fta'] + x['tov']) * (x['team_mp'] / 5) ) / (x['Minutes'] * (x['team_fga'] + 0.44 * x['team_fta'] + x['team_tov']))
+    except ZeroDivisionError:
+	usage = 0
+    if (usage > 50):
+	usage = 50
     return(usage)
 def usage_3g_avg(x):
     return df[(df['gp'] >= x['gp'] - 3) & (df['gp'] < x['gp']) & (df['name'] == x['name'])].usage.mean()
@@ -295,6 +281,6 @@ yo = train_save_model(df, 13000,20500)
 
 # F) insert gamelogs into elasticsearc
 not_today = df[df['index'] != today.strftime('%Y%m%d')]
-#not_today.to_csv('gamelogs.csv')
+not_today.to_csv('gamelogs.csv')
 InsertLogs(not_today, indexer="gamelogs")
 
