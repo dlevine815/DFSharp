@@ -14,14 +14,20 @@ from datetime import datetime, timedelta
 import os, cPickle
 
 
+
+
+
+
+
+
 # get_projections from opt csv
 def get_projections():
-    # global vars
     today = datetime.today() - timedelta(hours=4)
     yesterday = today - timedelta(hours=24)
 
     filename = today.strftime('%Y%m%d')+'_opt.csv'
     path = '/home/ubuntu/dfsharp/opt_csvs/'+filename
+    ypath = '/home/ubuntu/dfsharp/opt_csvs/'+yesterday.strftime('%Y%m%d')+'_opt.csv'
     # read csv
     try:
 	df = pd.read_csv(path)
@@ -29,9 +35,8 @@ def get_projections():
 	df = pd.read_csv(ypath)
 	path = ypath
     df = pd.read_csv(path)
-    df[['DK_Proj','min_proj','dk_per_min','value','usage_5g_avg']] = np.round(df[['DK_Proj','min_proj','dk_per_min','value','usage_5g_avg']],1)
-    ajax = df[['numpos','name','Team','Opp','dk_sal','ownership','DK_Proj','dvprank','min_proj','dk_per_min','value','usage_5g_avg']].to_json(orient='records')
-    print(ajax)
+    df[['DK_Proj','min_proj','dk_per_min','value','usage_5g_avg','proj_pure','dk_std_90_days','ceiling','floor']] = np.round(df[['DK_Proj','min_proj','dk_per_min','value','usage_5g_avg','proj_pure','dk_std_90_days','ceiling','floor']],1)
+    ajax = df[['numpos','name','Team','Opp','dk_sal','DK_Proj','proj_pure','min_proj','dk_per_min','dvprank','value','usage_5g_avg','dk_std_90_days','ceiling','floor']].to_json(orient='records')
     return(ajax)
 
 
@@ -40,6 +45,7 @@ def get_projections():
 # reads in file from generate_model
 # adjusts min_proj for a specific player
 def adjust_minutes(player, minutes):
+    today = datetime.today() - timedelta(hours=4)
     filename = today.strftime('%Y%m%d')+'_players.csv'
     path = '/home/ubuntu/dfsharp/csvs/'+filename
     df = pd.read_csv(path)
@@ -119,6 +125,7 @@ def pre():
     excludes = []
     if len(ex) > 0:
 	excludes = ex.split(", ")
+    '''
     # get min ownership
     min_own = 0
     mo = request.args.get('cc', 0, type=int)
@@ -129,6 +136,7 @@ def pre():
     maxo = request.args.get('dd', 0, type=int)
     if maxo <100 and maxo >0:
 	max_own = maxo
+    '''
     # get min dvp
     min_dvp = 0
     md = request.args.get('ee', 0, type=int)
@@ -144,8 +152,14 @@ def pre():
     ds = request.args.get('gg', 0, type=int)
     if ds < 5 and ds >= -5:
 	delta = ds
+    # get target
+    target = 'DK_Proj'
+    ts = request.args.get('hh', 0, type=str)
+    if type(ts) == str:
+	target = ts
+
    
-    data = run_in_separate_process(optimizer, locks=locks, exclusions=excludes, delta=int(delta), min_own=min_own, min_dvp=min_dvp, min_sal=min_sal, max_own=max_own)
+    data = run_in_separate_process(optimizer, locks=locks, exclusions=excludes, delta=int(delta), min_dvp=min_dvp, min_sal=min_sal, target=target)
     return(data)
 
 @app.route('/', methods=['GET', 'POST'])

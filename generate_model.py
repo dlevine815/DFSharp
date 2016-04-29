@@ -4,7 +4,8 @@ import numpy as np
 from patsy import dmatrices
 import statsmodels.api as sm
 import pickle
-from datetime import datetime, timedelta
+#from datetime import datetime, timedelta
+import datetime
 from bs4 import BeautifulSoup
 import requests
 import cnfg
@@ -15,6 +16,9 @@ from collections import OrderedDict
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 from proj_elastic import InsertLogs
+from sklearn import ensemble
+from sklearn.preprocessing import scale
+from sklearn.metrics import mean_squared_error
 
 
 
@@ -45,8 +49,8 @@ def daily_download():
          'home','team_pts','opp_pts','dk_sal','dk_pos','dk_change','Stats','DoubleD']]
     
     # only train on players who played > 0 minutes (keep today's players in frame)
-    today = datetime.today()
-    df = df[(df['Minutes'] > 0) | (df['index'] == today.strftime('%Y%m%d'))]
+    today = datetime.datetime.today()
+    df = df[(df['active'] > 0) | (df['index'] == today.strftime('%Y%m%d'))]
     
     return(df)
 
@@ -61,8 +65,34 @@ def make_dvp(df):
     df['kpos'] = df['Cluster Position Off']
     return(df)
 
+def add_pace(df):
+    holl = pd.read_html('http://espn.go.com/nba/hollinger/teamstats')
+    holl = holl[0][1:]
+    holl.columns = holl.iloc[0]
+    holl = holl.reindex(holl.index.drop(1))
+    holl.set_value(3, 'TEAM', 'Oklahoma')
+    # read in crosswalk
+    teams = pd.read_csv('/home/ubuntu/dfsharp/team_crosswalk.csv', sep='\t')
+    
+    holl = pd.merge(left=holl, right=teams, left_on='TEAM', right_on='team_city')
+    holl['team'] = holl['team'].str.lower()
+    # merge team stats into real
+    holl = holl[['team','team_city','PACE','AST','TO','ORR','DRR','REBR','EFF FG%','TS%','OFF EFF','DEF EFF']]
+    holl = holl.rename(columns={'OFF EFF': 'OFF_EFF', 'DEF EFF': 'DEF_EFF'})
+    holl['PACE'] = pd.to_numeric(holl['PACE'])
+    holl['OFF_EFF'] = pd.to_numeric(holl['OFF_EFF'])
+    holl['DEF_EFF'] = pd.to_numeric(holl['DEF_EFF'])
 
-# In[4]:
+
+    hero_pace = holl[['team','PACE','OFF_EFF']]
+    villain_pace = holl[['team','PACE','DEF_EFF']]
+    villain_pace = villain_pace.rename(columns={'PACE': 'PACE_OPP'})
+
+    df = pd.merge(left=df, right=hero_pace, left_on='Team',right_on='team', how='left')
+    df = pd.merge(left=df, right=villain_pace, left_on='Opp', right_on='team', how='left')
+    df['pace_sum'] = df['PACE'] + df['PACE_OPP']
+    
+    return(df)
 
 # total active games per player
 def active_games(x):
@@ -151,8 +181,14 @@ def starter_5g_avg(x):
 # minutes vs starters 5 game average
 def mvs_5g_avg(x):
     return df[(df['gp'] >= x['gp'] - 5) & (df['gp'] < x['gp']) & (df['name'] == x['name'])].min_vs_starters.mean()
-
-''' add_stats- adds stats
+# add up their total double doubles
+def dbl_dbl(x):
+    return df[(df['index'] >= x['index'] - pd.DateOffset(350)) & (df['index'] < x['index']) & (df['name'] == x['name'])].DoubleD.sum()
+# 3game avg of FGA
+def fga_3g_avg(x):
+    return df[(df['gp'] >= x['gp'] - 3) & (df['gp'] < x['gp']) & (df['name'] == x['name'])].fga.mean()
+'''
+add_stats- adds stats
     input: dataframe sorted ascending by dates
     outputs: same frame with added stat columns
 '''
@@ -161,17 +197,17 @@ def add_stats(df):
     df['gp'] = df.apply(active_games, axis=1)
     df['min_3g_avg'] = df.apply(min_3g_avg, axis=1)
 
-    df['min_7d_avg'] = df.apply(min_avg_7_days, axis=1)
+    #df['min_7d_avg'] = df.apply(min_avg_7_days, axis=1)
     df['min_90d_avg'] = df.apply(min_avg_90_days, axis=1)
     df['dk_avg_90_days'] = df.apply(dk_avg_90_days, axis=1)
     # df['teampts_avg'] = df.apply(team_pts_90_days, axis=1)
-    df['opppts_avg'] = df.apply(opp_pts_90_days, axis=1)
+    # df['opppts_avg'] = df.apply(opp_pts_90_days, axis=1)
     df['dk_per_min'] = df['dk_avg_90_days'] / df['min_90d_avg']
     # transform DK points to more normal distro
     df['DKP_trans'] = df['DKP']**.5
     # create columns for - positive DK change; negative DK change
-    df['dk_sal_increase'] = np.where((df['dk_change'] > 0), True, False)
-    df['dk_sal_decrease'] = np.where((df['dk_change'] < 0), True, False)
+    # df['dk_sal_increase'] = np.where((df['dk_change'] > 0), True, False)
+    # df['dk_sal_decrease'] = np.where((df['dk_change'] < 0), True, False)
     # create standard dev and max columns
     df['dk_std_90_days'] = df.apply(dk_std_90_days, axis=1)
     df['dk_max_30_days'] = df.apply(dk_max_30_days, axis=1)
@@ -186,6 +222,8 @@ def add_stats(df):
     df['dvp'] = df.apply(dvp, axis=1)
     # add dvp rank
     df['dvprank'] = pd.qcut(df['dvp'], [0.05, 0.1, 0.25, 0.5, 0.75, .93, 1], labels=False)
+    # combine PACE and dvp
+    df['pace_dvp'] = (df['pace_sum'] / 10) + df['dvp']
     
     # create summary stats
     df['pts'] = df['Stats'].str.extract('(\d*)pt')
@@ -237,7 +275,19 @@ def add_stats(df):
     
     # add 3game average of starter minutes
     df['starter_5g_avg'] = df.apply(starter_5g_avg, axis=1)
+
+    # add rolling avg of fga
+    df['fga_3g_avg'] = df.apply(fga_3g_avg, axis=1)
+
+
     
+    # add double double count
+    df['dbl_dbl_cnt'] = df.apply(dbl_dbl, axis=1)
+    # create "double double per game" stat
+    df['dbl_dbl_per_game'] = df['dbl_dbl_cnt'] / df['gp'] 
+    # combo stat: Minutes + FGA + dbl_dbl_per_game
+    df['combo'] = df['min_proj'] + df['dbl_dbl_per_game'] + df['fga_3g_avg']   
+
     return(df)
 
 ''' train_model - trains linear regression on given df
@@ -249,17 +299,42 @@ def add_stats(df):
 '''
 def train_save_model(df, num=0,num2=20000):
     # train on most recent 30 days?
-    train = df[num:num2].dropna(subset=['DKP_trans','Start','dk_avg_90_days','home','dvp','usage_5g_avg','min_proj'])  
-    Y_train, X_train = dmatrices('''DKP_trans ~  Start  + dk_avg_90_days + dvp + usage_5g_avg 
-                                 + home + min_proj
+    #train = df[num:num2].dropna(subset=['DKP_trans','Start','dk_avg_90_days','home','dvp','usage_5g_avg','min_proj'])  
+    train = df[num:num2].dropna(subset=['DKP','Start','dk_per_min','pace_dvp','combo'])  
+    Y_train, X_train = dmatrices('''DKP_trans ~  Start  + dk_per_min + pace_dvp + combo 
                  ''', data=train, return_type='dataframe')
     
     model = sm.OLS(Y_train, X_train)
     results = model.fit()
     print(results.summary())
-    path = '/home/ubuntu/dfsharp/latest_model1.p'
+    path = '/home/ubuntu/dfsharp/latest_model.p'
     pickle.dump(results, open(path, "wb") )
     return(results)
+
+
+def train_save_booster(df, num=0, num2=20000):
+    # Load data
+    df = df[num:num2].dropna(subset=['DKP','Start','dk_per_min','dvprank','pace_sum','min_proj','home'])
+
+    #X = scale(df[['Start','dk_per_min','pace_dvp','combo']])
+    df['home'] = df['home'].map({'H' : 1.0, 'A' : 0.0})
+    X = scale(df[['Start','dk_per_min','dvprank','pace_sum','min_proj','home']])
+    X = X.astype(np.float32)
+    y = df['DKP']
+
+    # Fit regression model
+    params = {'n_estimators': 450, 'max_depth': 2, 'min_samples_split': 5, 'min_samples_leaf': 4,'max_features': 0.3, 
+              'learning_rate': 0.1, 'loss': 'ls'}
+    clf = ensemble.GradientBoostingRegressor(**params)
+
+    clf.fit(X, y)
+    print(clf.score(X, y))
+    path = '/home/ubuntu/dfsharp/latest_model.p'
+    pickle.dump(clf, open(path, "wb") )
+    return(clf)
+
+
+
 
 # A) daily download 
 df = daily_download()
@@ -267,20 +342,43 @@ df = daily_download()
 # B) create DVP
 df = make_dvp(df)
 
-# C) add stats
-df = add_stats(df)
+# C) add pace
+df = add_pace(df)
 
-# D) pull out todays frame
-today = datetime.today()
-todays_players = df[df['index'] == today.strftime('%Y%m%d')]
+# D) add stats
+df = add_stats(df)
+# (optional) skip stat creation and load latest gamelogs df
+#df = pd.read_csv('/home/ubuntu/dfsharp/gamelogs.csv')
+print(len(df))
+df.Date = df['GameID'].str[:8]
+
+# E) pull out todays frame
+today = datetime.datetime.today() - datetime.timedelta(hours=4)
+#todays_players = df[df['index'] == today.strftime('%Y%m%d')]
+todays_players = df[df.Date == today.strftime('%Y%m%d')]
+
+print(len(todays_players))
+
+
+
+
 csvpath = '/home/ubuntu/dfsharp/csvs/'+today.strftime('%Y%m%d')+'_players.csv'
 todays_players.to_csv(csvpath)
-
-# E) train and save the model
-yo = train_save_model(df, 13000,20500)
-
-# F) insert gamelogs into elasticsearc
+# F) insert gamelogs into elasticsearch, save to CSV
 not_today = df[df['index'] != today.strftime('%Y%m%d')]
 not_today.to_csv('gamelogs.csv')
 InsertLogs(not_today, indexer="gamelogs")
+
+
+# G) remove outliers for model training
+df = df[df['dvp'] < 29]
+df = df[df['dvp'] > 12]
+df = df[df['dk_avg_90_days'] > 0]
+df = df[df['Minutes'] > 5]
+df = df[df['fga'] > 0]
+
+
+# H) train and save the model
+yo = train_save_booster(df, 5000,20000)
+
 

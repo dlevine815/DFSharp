@@ -20,21 +20,37 @@
 </head>
 <body>
 
-    <h1 id='sharptitle'>Welcome to DFSharp!</h1>
 <div class="wrap">
     </div>
+	<div data-role="page" id="page1">
+  	<div data-role="header" data-theme="b">
+    	<h1>Welcome to DFSharp!</h1>
+	</div>
+	<div class="page">
+	<div data-role="collapsible" data-collapsed="true">
+	<h3> Click For More Info</h3>
+	<p> Below, you'll find an interactive lineup optimizer for NBA DFS.  </p>
+	<p> The projections used are updated with live injury information, and the ownership information is live as well, courtesy of <a href="https://www.OwnThePlay.com" target="_blank">OwnThePlay</a></p>
+	<p> Addditional graphs, news, and live analysis can found <a href="http://DFSharps.com" target="_blank">Here</a></p>
+	<p> Methodology behind the creation of this site, and the accompanying dashboard, can be found <a href="http://shermanash.github.io/DFSharp/" target="_blank">Here</a>
+	<p>This site is open source (code is <a href="https://github.com/shermanash/DFSharp" target="_blank">Here</a>), in active development and new features are added often, so stay tuned for more, and happy optimizing!</p>
+	<p> Keep in mind when building lineups factoring ownership, that ownership information is most useful closer to tip-off, generally from 5-7PM.  </p>
+<p> If you'd like to collaborate, or have any ideas for ways to improve the site, please send me an <a href="mailto:shermanash@gmail.com?Subject=DFSharp" target="_top">email</a></p>
+	</div>
+
+  </div>
+  <div role="main" class="ui-content">
+    <div data-role="tabs">
+      <div data-role="navbar">
+        <ul>
+          <li><a href="#fragment-1" class="ui-btn-active">Lineup Optimizer</a></li>
+          <li><a href="#fragment-2">Live Projections</a></li>
+          <li><a href="#fragment-3">Work In Progress</a></li>
+        </ul>
+      </div>
+      <div id="fragment-1">
 
 
-    <div class="page">
-<p> Below, you'll find an interactive lineup optimizer for NBA DFS.  </p>
-<p> The projections used are updated with live injury information, and the ownership information is live as well, courtesy of <a href="https://www.OwnThePlay.com" target="_blank">OwnThePlay</a></p>
-<p> Addditional graphs, news, and live analysis can found <a href="http://DFSharps.com" target="_blank">Here</a></p>
-<p> Methodology behind the creation of this site, and the accompanying dashboard, can be found <a href="http://shermanash.github.io/DFSharp/" target="_blank">Here</a>
-<p>This site is open source (code is <a href="https://github.com/shermanash/DFSharp" target="_blank">Here</a>), in active development and new features are added often, so stay tuned for more, and happy optimizing!</p>
-<p> Keep in mind when building lineups factoring ownership, that ownership information is most useful closer to tip-off, generally from 5-7PM.  </p>
-
-
-    <h1 id='mytitle'>Lineup Optimizer</h1>
 Tip: For the lock and exclude fields, don't worry about spelling Giannis Antetokounmpo perfectly- as long as you're close, DFSharp will guess correctly- and for most players not named James or Kevin, just a first or last name will be enough.
 <form>
 <div class="form-group">
@@ -42,16 +58,14 @@ Tip: For the lock and exclude fields, don't worry about spelling Giannis Antetok
 <div class="form-group">
         <input type="text" class="form-control" name="excluder" placeholder="Excludes (or teams)- e.g. Alex Len, nyk, atl">
 </div>
-
+<!--
 <div data-role="rangeslider" class="form-group" >
   <label for="minown">Ownership Min/Max:</label>
   <input name="minown" id="minown" min="0" max="100" value="0" type="range" />
   <label for="maxown">Ownership Min/Max:</label>
   <input name="maxown" id="maxown" min="0" max="100" value="100" type="range" />
 </div>
-
-
-
+-->
 <p>Minimum DvP Rank:</p>
 <div class="form-group" data-mini="true">
   <input type="range" data-highlight="true"  name="mindvp" value="0" min="0" max="5" data-show-value="true">
@@ -61,12 +75,22 @@ Tip: For the lock and exclude fields, don't worry about spelling Giannis Antetok
   <input type="range" data-highlight="true"  name="minsal" value="2500" min="2000" max="6000" data-show-value="true">
 </div>
 
-<p><b>Enter Ownership Weight: -5 is Max Fade [GPP] | 0 is Projections only | 5 is Max Ownership [Cash Games]</b></p>
+<!--<p><b>Enter Ownership Weight: -5 is Max Fade [GPP] | 0 is Projections only | 5 is Max Ownership [Cash Games]</b></p>-->
+<p>Enter Variance Weight: -5 is Min Variance [Cash] | 0 is Target only | 5 is Max Variance [GPP]</p>
 
 <div class="form-group">
   <input type="range" name="sliderbar" id="ex1" value="0" min="-5" max="5" data-show-value="true" data-theme="b" data-track-theme="b">
 </div>
  
+<div data-role="fieldcontain" class="form-group">
+   <label for="select-choice-1" class="select">Target to Optimize:</label>
+   <select name="select-choice-1" id="select-choice-1">
+      <option value="DK_Proj">Projection</option>
+      <option value="proj_pure">Minutes * (DK/Min)</option>
+      <option value="min_proj">Minutes Only</option>
+   </select>
+</div>
+
 <a href="javascript:void();" type="submit" id="cal">
 <div class="ui-btn ui-input-btn ui-shadow">
    Show Me The Lineup!
@@ -75,44 +99,13 @@ Tip: For the lock and exclude fields, don't worry about spelling Giannis Antetok
 
 </a>
 
-<!--
-<div class="ui-btn ui-input-btn ui-shadow">
-  Optimize! 
-  <a href="javascript:void();" type="submit" id="cal" data-corners="false" data-enhanced="true" value="Optimize!">showmethemoney</a>
-</div>-->
-
-
-
-
 </form>
 
-
-
-
-
-
-
-
+<!-- begin table which displays latest lineup-->
 <table id="example" class="display" cellspacing="0" width="100%">
         <thead>
             <tr>
                 <th>Position</th>
-                <th>Name</th>
-                <th>Team</th>
-                <th>Opp</th>
-                <th class="sum">Salary</th>
-                <th>Ownership</th>
-                <th>Projection</th>
-                <th>DvP</th>
-                <th>Minutes (Proj*)</th>
-                <th>DK Points/Min</th>
-                <th>Value (Proj/Sal)</th>
-                <th>Usage (5g Avg)</th>
-            </tr>
-        </thead>
-        <tfoot>
-            <tr>
-		<th>Position</th>
                 <th>Name</th>
                 <th>Team</th>
                 <th>Opp</th>
@@ -124,10 +117,20 @@ Tip: For the lock and exclude fields, don't worry about spelling Giannis Antetok
                 <th>DK Points/Min</th>
                 <th>Value (Proj/Sal)</th>
                 <th>Usage (5g Avg)</th>
-	            </tr>
-        </tfoot>
-    </table>
+            </tr>
+        </thead>
 
+	<tfoot>
+            <tr>
+                <th colspan="4" style="text-align:center"></th>
+                <th></th>
+                <th colspan="6" style="text-align:left"></th>
+                <th></th>
+            </tr>
+        </tfoot>
+       </table>
+      </div>
+      <div id="fragment-2">
 <h3 id='mytitle'>Latest Projections</h1>
 <p> Updated every 10 minutes to include minutes adjustments and latest injury updates.  Tip: Sort on multiple columns by holding down the Shift key.</p>
 
@@ -149,13 +152,16 @@ Tip: For the lock and exclude fields, don't worry about spelling Giannis Antetok
                 <th>Team</th>
                 <th>Opp</th>
                 <th>Salary</th>
-                <th>Ownership</th>
                 <th>Projection</th>
-                <th>DvP</th>
+                <th>Min * DK/Min</th>
                 <th>Minutes (Proj*)</th>
                 <th>DK Points/Min</th>
+                <th>DvP</th>
                 <th>Value (Proj/Sal)</th>
                 <th>Usage (5g Avg)</th>
+                <th>Std Deviation</th>
+                <th>Ceiling</th>
+                <th>Floor</th>
             </tr>
         </thead>
         <tfoot>
@@ -165,19 +171,29 @@ Tip: For the lock and exclude fields, don't worry about spelling Giannis Antetok
                 <th>Team</th>
                 <th>Opp</th>
                 <th>Salary</th>
-                <th>Ownership</th>
                 <th>Projection</th>
-                <th>DvP</th>
+                <th>Min * DK/Min</th>
                 <th>Minutes (Proj*)</th>
                 <th>DK Points/Min</th>
+                <th>DvP</th>
                 <th>Value (Proj/Sal)</th>
                 <th>Usage (5g Avg)</th>
-	            </tr>
+                <th>Std Deviation</th>
+                <th>Ceiling</th>
+                <th>Floor</th>
+	    </tr>
         </tfoot>
     </table>
+      </div>
+      <div id="fragment-3">
+         <p>news, injury updates, graphs on the way!</p>
+      </div>
+    </div>
+  </div>
+</div>
 
 
-<p> If you'd like to collaborate, or have any ideas for ways to improve the site, please send me an <a href="mailto:shermanash@gmail.com?Subject=DFSharp" target="_top">email</a></p>
+
 
 
      <div>
@@ -213,13 +229,19 @@ Tip: For the lock and exclude fields, don't worry about spelling Giannis Antetok
 
 
 
+<!--<script src="//code.jquery.com/jquery-1.10.2.js"></script>-->
+
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
     <!-- Latest compiled and minified JavaScript -->
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="//code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+
+
+<!--<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>-->
+
 <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.11/js/jquery.dataTables.js"></script>
   <script type=text/javascript>
 
@@ -227,21 +249,52 @@ Tip: For the lock and exclude fields, don't worry about spelling Giannis Antetok
        $('a#cal').bind('click', function() {
 		var aa = $('input[name="locker"]').val();
 	        var bb = $('input[name="excluder"]').val();
-	        var cc = $('input[name="minown"]').val();
-	        var dd = $('input[name="maxown"]').val();
+	        //var cc = $('input[name="minown"]').val();
+	        //var dd = $('input[name="maxown"]').val();
 	        var ee = $('input[name="mindvp"]').val();
 	        var ff = $('input[name="minsal"]').val();
 	        var gg = $('input[name="sliderbar"]').val();
+		var e = document.getElementById("select-choice-1");
+		var hh = e.options[e.selectedIndex].value;
 	$('#example').dataTable( {
-		"destroy": "true",
-		"scrollX": "true",
+			"footerCallback": function ( row, data, start, end, display ) {
+			var api = this.api(), data;
+	 
+			    // Total salary
+			    pageTotal = api
+				.column( 4, { page: 'current'} )
+				.data()
+				.reduce( function (a, b) {
+				    return a + b;
+				}, 0 );
+			    // Total proj
+			    projTotal = api
+				.column( 6, { page: 'current'} )
+				.data()
+				.reduce( function (a, b) {
+				    return Math.round(a + b);
+				}, 0 );
+		 
+			    // Update footer
+			    $( api.column( 4 ).footer() ).html(
+				'$'+pageTotal
+			    );
+			// Update footer
+			    $( api.column( 6 ).footer() ).html(
+				'Total Proj: ' + projTotal
+			    );
+
+			},
+		"destroy": true,
+		"searching": false,
+		"scrollX": true,
 		"order": [[4, "desc"]],
-		"paging": "false",
-		"ordering": "false",
-		"info": "false",
-		"bFilter": "false",
+		"paging": false,
+		"info": false,
+		"bFilter": false,
+		"bPaginate": false,
 	  "ajax": {
-          "url": "/t?aa="+aa+"&bb="+bb+"&cc="+cc+"&dd="+dd+"&ee="+ee+"&ff="+ff+"&gg="+gg,
+          "url": "/t?aa="+aa+"&bb="+bb+"&ee="+ee+"&ff="+ff+"&gg="+gg+"&hh="+hh,
 	    "dataSrc": ""
 	  },
 	"aoColumns":[
@@ -270,14 +323,43 @@ Tip: For the lock and exclude fields, don't worry about spelling Giannis Antetok
 <script type="text/javascript">
 $(document).ready( function () {
 	$('#example').dataTable( {
-		"scrollX": "true",
+		"footerCallback": function ( row, data, start, end, display ) {
+            	var api = this.api(), data;
+ 
+		    // Total salary
+		    pageTotal = api
+			.column( 4, { page: 'current'} )
+			.data()
+			.reduce( function (a, b) {
+			    return a + b;
+			}, 0 );
+		    // Total proj
+		    projTotal = api
+			.column( 6, { page: 'current'} )
+			.data()
+			.reduce( function (a, b) {
+			    return Math.round(a + b);
+			}, 0 );
+	 
+		    // Update footer
+		    $( api.column( 4 ).footer() ).html(
+			'$'+pageTotal
+		    );
+	     	// Update footer
+		    $( api.column( 6 ).footer() ).html(
+			'Total Proj: ' + projTotal
+		    );
+
+		},
+		"searching": false,
+		"scrollX": true,
 		"order": [[4, "desc"]],
-		"paging": "false",
-		"ordering": "false",
-		"info": "false",
-		"bfilter": "false",
+		"paging": false,
+		"info": false,
+		"bfilter": false,
+		"bPaginate": false,
 	  "ajax": {
-	    "url": "/t?aa=&bb=&cc=&dd=&ee=&ff=&gg=0",
+	    "url": "/t?aa=&bb=&ee=&ff=&gg=0",
 	    "dataSrc": ""
 	  },
 	"aoColumns":[
@@ -300,12 +382,8 @@ $(document).ready( function () {
 // Projections DataTable ... 
 $(document).ready( function () {
 	$('#example2').dataTable( {
-		"scrollX": "true",
+		"scrollX": true,
 		"order": [[4, "desc"]],
-		"paging": "false",
-		"ordering": "false",
-		"info": "false",
-		"bfilter": "false",
 	  "ajax": {
 	    "url": "/v?",
 	    "dataSrc": ""
@@ -316,19 +394,23 @@ $(document).ready( function () {
 		{"mData":"Team"},
 		{"mData":"Opp"},
 		{"mData":"dk_sal"},
-		{"mData":"ownership"},
+		//{"mData":"ownership"},
 		{"mData":"DK_Proj"},
-		{"mData":"dvprank"},
+		{"mData":"proj_pure"},
 		{"mData":"min_proj"},
 		{"mData":"dk_per_min"},
+		{"mData":"dvprank"},
 		{"mData":"value"},
 		{"mData":"usage_5g_avg"},
+		{"mData":"dk_std_90_days"},
+		{"mData":"ceiling"},
+		{"mData":"floor"},
+
 				]
-	} );
+	});
+
 } );
-
 </script>
-
 
 <!--
 <script type="text/javascript">

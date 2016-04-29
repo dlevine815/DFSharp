@@ -23,6 +23,7 @@ import cnfg
 import tweepy
 from requests_oauthlib import OAuth1
 import re
+from sklearn.preprocessing import scale
 
 
 
@@ -248,7 +249,7 @@ def adjust_minutes(row):
 startlist = ['start', 'starting', 'STARTING', 'START']
 goodlist = ['probable','playing','PLAYING']
 qlist = ['questionable', '"?"','QUESTIONABLE']
-badlist = ['doubtful','out','miss','DOUBTFUL','OUT']
+badlist = ['doubtful','out','miss','DOUBTFUL','OUT','INJURED']
  
 # use status column to adjust min_proj
 def apply_status(row):
@@ -501,25 +502,30 @@ def project_today(model, df):
     # adjust min_proj with status info
     df['min_proj'] = df.apply(apply_status, axis=1)
     df['Start'] = df.apply(start_status, axis=1)
-    
-    today_df = df[['dk_pos','dk_sal','Team','name','status','Start','min_proj','ownership',
-                   'min_7d_avg','dk_avg_90_days','dk_std_90_days','dk_max_30_days',
-                   'home','dk_per_min','opppts_avg','Opp','dvp','dvprank','otprank',
-		   'kpos','min_3g_avg','starts_past_week','b2b','usage_3g_avg',
-		   'usage_5g_avg','value_3g_avg','mvs_5g_avg','starter_5g_avg']].dropna(subset=['dk_sal','Start','min_proj','dk_avg_90_days','home','dvp','usage_5g_avg'])
-    # add intercept and convert all to numeric
-    Y_fake, features_real = dmatrices('''dk_sal ~ Start  + min_proj + dk_avg_90_days + dvp + home + usage_5g_avg
-                 ''', data=today_df, return_type='dataframe')
+    print(len(df))
+    df = df[df['min_proj'] > 7]
+    print(len(df))
+
+    today_df = df[['dk_pos','dk_sal','Team','name','status','Start','min_proj','ownership','min_3g_avg','dk_avg_90_days','dk_std_90_days','dk_max_30_days','home','dk_per_min','Opp','dvp','dvprank','otprank','kpos','min_3g_avg','starts_past_week','b2b','usage_3g_avg','PACE','usage_5g_avg','value_3g_avg','mvs_5g_avg','starter_5g_avg','pace_dvp','combo','pace_sum']].dropna(subset=['Start','dk_per_min','dvprank','pace_sum','min_proj','home'])
+
+    #features_real = today_df[['Start','dk_per_min','pace_dvp','min_proj']] 
+
+    today_df['home'] = today_df['home'].map({'H' : 1.0, 'A' : 0.0})
+    features_real = today_df[['Start','dk_per_min','dvprank','pace_sum','min_proj','home']] 
     
     # MAKE LIVE PROJECTIONS <3
-    today_df['DK_Proj'] = (model.predict(features_real, transform=False))
-    today_df['DK_Proj'] = today_df['DK_Proj']**2
+    today_df['DK_Proj'] = model.predict(scale(features_real))
+    #today_df['DK_Proj'] = model.predict(features_real)
+
+    #today_df['DK_Proj'] = today_df['DK_Proj']**2
+    print(len(today_df))
     
     today_df['proj_pure'] = today_df['min_proj'] * today_df['dk_per_min']
     
     today_df['value'] = today_df['DK_Proj'] / (today_df['dk_sal'] / 1000) 
     today_df['otp_value'] = today_df['ownership'] / (today_df['dk_sal'] / 1000)
-    today_df['ceiling'] = today_df['DK_Proj'] + today_df['dk_std_90_days']
+    today_df['ceiling'] = today_df['DK_Proj'] + 2*today_df['dk_std_90_days']
+    today_df['floor'] = today_df['DK_Proj'] - today_df['dk_std_90_days']
     
     today_df['DK_Proj'] = today_df.apply(zero_out, axis=1)
     return(today_df)
@@ -535,7 +541,7 @@ team_names = team_walk.team_long.tolist()
 # In[13]:
 
 # load latest model
-path = '/home/ubuntu/dfsharp/latest_model1.p'
+path = '/home/ubuntu/dfsharp/latest_model.p'
 model = pickle.load( open( path, "rb" ) )
 
 
@@ -544,14 +550,15 @@ model = pickle.load( open( path, "rb" ) )
 # get DF of todays players
 
 filename = today.strftime('%Y%m%d')+'_players.csv'
-#filename = '20160406_players.csv'
 path = '/home/ubuntu/dfsharp/csvs/'+filename
 todays_players = pd.read_csv(path)
+
 
 
 # In[15]:
 # 6) generate today's starters
 starters = init_starters(todays_players)
+
 
 # 6.25) initialize injury report from donbest
 inj_dict = scrape_injury_report()
@@ -562,12 +569,16 @@ injuries = read_injury_report(starters)
 # 6.75) merge in latest twitter injury news [now status column is up, but minute aren't updated]
 twitter = merge_twitter_info(injuries)
 
+
 # 6.8) merge in latest OTP info
 otps = merge_otp(twitter)
 
 # 7) generate today's projections [ update minutes first!]
 today_proj = project_today(model, otps)
 # 8) push timestamped projections to elasticsearch
+
+
+
 
 optfile = today.strftime('%Y%m%d')+'_opt.csv'
 opt_path = '/home/ubuntu/dfsharp/opt_csvs/'+optfile
@@ -577,10 +588,11 @@ today_proj['numpos'] = today_proj['dk_pos'].map({1 : 'PG', 2 : 'SG', 3 : 'SF', 4
 today_proj.fillna(0, inplace=True, downcast='infer')
 
 hio = today_proj[['numpos','name','dk_sal','Start','DK_Proj','value','status',
-                  'ceiling','min_proj','dk_per_min','home','Team','opppts_avg',
+                  'ceiling','min_proj','dk_per_min','home','Team','pace_dvp',
 		  'ownership','Opp','dvp','dvprank','otprank','otp_value','usage_5g_avg','mvs_5g_avg',
 		  'kpos','min_3g_avg','starts_past_week','b2b','usage_3g_avg',
-		   'usage_5g_avg','value_3g_avg','mvs_5g_avg','starter_5g_avg','proj_pure']].to_csv(opt_path, index=False)
+		   'usage_5g_avg','value_3g_avg','mvs_5g_avg','starter_5g_avg','proj_pure',
+		'floor','dk_std_90_days']].to_csv(opt_path, index=False)
 
 
 

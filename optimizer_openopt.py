@@ -41,9 +41,21 @@ def fuzzy_match(inputlist, choices):
 	    outlist.append(fz[0])
         return(outlist)
 	
+
+def optimize_grid(delta=[-4,-2,0,2,4], min_dvp=[0,1,2,3], min_sal=[2000,2500,3000], exclusions=[], locks=[], target=['DK_Proj','min_proj','proj_pure']):
+
+    df = pd.DataFrame()
+    for d in delta:
+	for v in min_dvp:
+	    for m in min_sal:
+		for t in target:
+		    players = optimizer(delta=d, min_dvp=v, min_sal=m, exclusions=exclusions, locks=locks, target=t, return_format='df')
+		    df = df.append(players)
+    return(df)
+
         
 
-def optimizer(locks=[], exclusions=[], delta=0, min_own=0, min_dvp=0, min_sal=2000, max_own=100):
+def optimizer(locks=[], exclusions=[], delta=0, min_own=0, min_dvp=0, min_sal=2000, max_own=100, target='DK_Proj', return_format='ajax'):
 
     adjustments={}
 
@@ -87,14 +99,18 @@ def optimizer(locks=[], exclusions=[], delta=0, min_own=0, min_dvp=0, min_sal=20
                         'PF': 1 if row[0] == 'PF' else 0,
                         'C': 1 if row[0] == 'C' else 0,
                         'name': row[1],
-                        'salary': float(row[2]),
-                        'fpts': float(row[4]) if row[1] not in adjustments.keys() else adjustments[row[1]],
+                        'salary': int(row[2]),
+                        'DK_Proj': float(row[4]) if row[1] not in adjustments.keys() else adjustments[row[1]],
                         'min_proj': float(row[8]) if row[1] not in adjustments.keys() else adjustments[row[1]],
                         'dk_per_min': float(row[9]) if row[1] not in adjustments.keys() else adjustments[row[1]],
 			'lock': 1 if row[1] in locks else 0,
-			'ownership': float(row[13]) if row[1] not in adjustments.keys() else adjustments[row[1]],
+			#'ownership': float(row[13]) if row[1] not in adjustments.keys() else adjustments[row[1]],
 			'dvprank': float(row[16]) if row[1] not in adjustments.keys() else adjustments[row[1]],
-			'otprank': float(row[17]) if row[1] not in adjustments.keys() else adjustments[row[1]]
+			#'otprank': float(row[17]) if row[1] not in adjustments.keys() else adjustments[row[1]]
+			'usage_5g_avg': float(row[19]) if row[1] not in adjustments.keys() else adjustments[row[1]],
+			'value_3g_avg': float(row[28]) if row[1] not in adjustments.keys() else adjustments[row[1]],
+			'proj_pure': float(row[31]) if row[1] not in adjustments.keys() else adjustments[row[1]],
+			'dk_std_90_days': float(row[33]) if row[1] not in adjustments.keys() else adjustments[row[1]],
                         }
 		for team in abblist:
 		    vals[team] = 1 if row[11] == team else 0
@@ -114,8 +130,9 @@ def optimizer(locks=[], exclusions=[], delta=0, min_own=0, min_dvp=0, min_sal=20
 
     constraints = lambda values: (
 			      values['lock'] == len(locks),
-                              values['salary'] < 50100, 
-			      values['salary'] > 49500,
+			      values['salary'] >= 49500,
+			      #values['salary'] != 50100,
+                              values['salary'] <= int(50000), 
                               values['nItems'] == 8, 
                               values['PG'] >= 1,
                               values['PG'] <= 2,
@@ -131,15 +148,9 @@ def optimizer(locks=[], exclusions=[], delta=0, min_own=0, min_dvp=0, min_sal=20
                               values['PGSGC'] >= 4,
                               values['PGSGC'] <= 5,
                              ) + tuple([values['id%d'% i] <= 1 for i in range(len(items))])
-			       #+ tuple([values['id%d'% i] == 1 for i in range(len(locks))]) 
 
-
-                                  # we could use lambda-func, e,g.
-                                  # values['mass'] + 4*values['volume'] < 100
-    #objective = 'ownership'
-    # we could use lambda-func, e.g. 
-    objective = lambda val: val['fpts'] + delta*val['otprank']
-    #objective = lambda val: val['fpts'] + delta*val['ownership']
+    #objective = lambda val: val['fpts'] + delta*val['otprank']
+    objective = lambda val: val[target] + delta*val['dk_std_90_days']
     p = KSP(objective, items, goal = 'max', constraints = constraints) 
     r = p.solve('glpk', iprint = 0) # requires cvxopt and glpk installed, see http://openopt.org/KSP for other solvers
     ''' Results for Intel Atom 1.6 GHz:
@@ -164,6 +175,10 @@ def optimizer(locks=[], exclusions=[], delta=0, min_own=0, min_dvp=0, min_sal=20
 
     InsertProj(df2, indexer="latestlineup")
     #return(playerlist)
-    return(ajax)
+    print(constraints)
+    if(return_format == 'ajax'):
+    	return(ajax)
+    else:
+	return(df2)
 
 
