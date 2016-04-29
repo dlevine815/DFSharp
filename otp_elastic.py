@@ -14,38 +14,40 @@ from elasticsearch import Elasticsearch
 from datetime import datetime
 
 
-# InsertElastic- Grabs ownership levels from OwnThePlay.com - inserts into elasticsearch
+# InsertElastic- Grabs ownership levels from OwnThePlay.com - inserts into
+# elasticsearch
 def InsertElastic():
 
     mapping = {
-            "ownership": {
-                "properties": {
-			"salary": {"type": "integer"},
-			"timestamp": {"type": "date"},
-			"player": {"type": "string", "index": "not_analyzed"},
-			"ownership": {"type": "integer"}
-			      }
-     			 }
-		}
-
+        "ownership": {
+            "properties": {
+                "salary": {"type": "integer"},
+                "timestamp": {"type": "date"},
+                "player": {"type": "string", "index": "not_analyzed"},
+                "ownership": {"type": "integer"}
+            }
+        }
+    }
 
     es = Elasticsearch()
     df = OwnThePlay()
     time = datetime.utcnow()
     for index, row in df.iterrows():
-	es.index(index="otp",
-		 doc_type="ownership",
-		 body={ "timestamp": time, 
-			"player" : row['player'],
-			"salary" : row['salary'],
-			"ownership" : row['ownership']})
+        es.index(index="otp",
+                 doc_type="ownership",
+                 body={"timestamp": time,
+                       "player": row['player'],
+                       "salary": row['salary'],
+                       "ownership": row['ownership']})
+
 
 def InsertMongo():
 
-    client = MongoClient('localhost', 27017)                                                                      
-    db = client['otp_db']                                                                                     
-    collection = db['ownership_collection']        
-    records = json.load(urllib.urlopen("http://api.owntheplay.com/api/upcoming/NBA"))
+    client = MongoClient('localhost', 27017)
+    db = client['otp_db']
+    collection = db['ownership_collection']
+    records = json.load(urllib.urlopen(
+        "http://api.owntheplay.com/api/upcoming/NBA"))
     collection.insert(records)
 
 
@@ -55,16 +57,17 @@ def OwnThePlay():
     """
 
     #context = ssl._create_unverified_context()
-    otp_json = json.load(urllib.urlopen("http://api.owntheplay.com/api/upcoming/NBA"))
+    otp_json = json.load(urllib.urlopen(
+        "http://api.owntheplay.com/api/upcoming/NBA"))
     # print(otp_json)
 
     contestSets = otp_json['contestSets']
-    league      = otp_json['league'] # NBA
+    league = otp_json['league']  # NBA
     athleteInfo = otp_json['athleteInfo']
-    contests    = otp_json['contests']
-    teams       = otp_json['teams']
+    contests = otp_json['contests']
+    teams = otp_json['teams']
 
-    today = time.strftime('%Y%m%d') 
+    today = time.strftime('%Y%m%d')
     todays_games = 0
     # we only want today's contests
     for key in contests:
@@ -88,21 +91,23 @@ def OwnThePlay():
         dic = athleteInfo[key]['contestSets']
         try:
             y = athleteInfo[key]['contestSets'][key2]['salary']
-            z = athleteInfo[key]['contestSets'][key2]['ownership']['SALARYCAP']['percentage']
+            z = athleteInfo[key]['contestSets'][key2][
+                'ownership']['SALARYCAP']['percentage']
             cooltuple = (x, y, z)
             ownership_list.append(cooltuple)
-        except KeyError, e:
-            #print 'I got a KeyError - reason "%s"' % str(e)
+        except KeyError as e:
+            # print 'I got a KeyError - reason "%s"' % str(e)
             print 'This player will not be listed: "%s"' % x
         except:
             print 'I got another exception, but I should re-raise'
             raise
-            
-    df = pd.DataFrame.from_records(ownership_list, columns=['player','salary','ownership'])
+
+    df = pd.DataFrame.from_records(
+        ownership_list, columns=[
+            'player', 'salary', 'ownership'])
     print df
 
     return df
 
 
 InsertElastic()
-
