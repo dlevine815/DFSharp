@@ -173,6 +173,7 @@ def insert_elastic():
         doc_type="article",
         body=mapping)
     df = get_all_news()
+    df.to_csv('webhose_latest.csv', encoding='UTF-8')
 
     for index, i in df.iterrows():
 

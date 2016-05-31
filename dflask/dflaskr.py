@@ -11,34 +11,97 @@ from optimizer_openopt import fuzzy_match
 from datetime import datetime, timedelta
 
 
-import os, cPickle
+import os
+import cPickle
 
+# get_gamelogs
+def get_gamelogs(player):
+    filename = '/home/ubuntu/dfsharp/gamelogs.csv'
+    df = pd.read_csv(filename)
+    df = df[df['name'] == player]
+    # get length of DF
+    gps = len(df)
 
-
-
-
-
+    df = df[df['gp'] >= gps-5]
+    print(len(df))
+    df[['DKP',
+	'Minutes']] = np.round(df[['DKP',
+                                   'Minutes']],1)
+    ajax = df[[#'numpos',
+               'name',
+               #'Team',
+               #'Opp',
+               #'dk_sal',
+               'DKP',
+               #'proj_pure',
+               #'dk_per_min',
+               #'dvprank',
+               #'value',
+               #'usage_5g_avg',
+               #'dk_std_90_days',
+               #'ceiling',
+               #'floor',
+	       'Minutes']].to_json(orient='records')
+    return(ajax)
 
 
 # get_projections from opt csv
 def get_projections():
+    '''
     today = datetime.today() - timedelta(hours=4)
     yesterday = today - timedelta(hours=24)
 
-    filename = today.strftime('%Y%m%d')+'_opt.csv'
-    path = '/home/ubuntu/dfsharp/opt_csvs/'+filename
-    ypath = '/home/ubuntu/dfsharp/opt_csvs/'+yesterday.strftime('%Y%m%d')+'_opt.csv'
+    filename = today.strftime('%Y%m%d') + '_opt.csv'
+    path = '/home/ubuntu/dfsharp/opt_csvs/' + filename
+    ypath = '/home/ubuntu/dfsharp/opt_csvs/' + \
+        yesterday.strftime('%Y%m%d') + '_opt.csv'
     # read csv
     try:
-	df = pd.read_csv(path)
+        df = pd.read_csv(path)
     except IOError:
-	df = pd.read_csv(ypath)
-	path = ypath
-    df = pd.read_csv(path)
-    df[['DK_Proj','min_proj','dk_per_min','value','usage_5g_avg','proj_pure','dk_std_90_days','ceiling','floor']] = np.round(df[['DK_Proj','min_proj','dk_per_min','value','usage_5g_avg','proj_pure','dk_std_90_days','ceiling','floor']],1)
-    ajax = df[['numpos','name','Team','Opp','dk_sal','DK_Proj','proj_pure','min_proj','dk_per_min','dvprank','value','usage_5g_avg','dk_std_90_days','ceiling','floor']].to_json(orient='records')
+        df = pd.read_csv(ypath)
+        path = ypath
+    '''
+    # offseason just use may 11th for now
+    filename = '20160511_opt.csv'
+    df = pd.read_csv('/home/ubuntu/dfsharp/opt_csvs/20160511_opt.csv')
+    df[['DK_Proj',
+        'min_proj',
+        'dk_per_min',
+        'value',
+        'usage_5g_avg',
+        'proj_pure',
+        'dk_std_90_days',
+        'ceiling',
+        'floor',
+	'DK_Proj_Reg']] = np.round(df[['DK_Proj',
+                                 'min_proj',
+                                 'dk_per_min',
+                                 'value',
+                                 'usage_5g_avg',
+                                 'proj_pure',
+                                 'dk_std_90_days',
+                                 'ceiling',
+                                 'floor',
+				 'DK_Proj_Reg']],
+                             1)
+    ajax = df[['numpos',
+               'name',
+               'Team',
+               'Opp',
+               'dk_sal',
+               'DK_Proj',
+               'proj_pure',
+               'min_proj',
+               'dk_per_min',
+               'dvprank',
+               'value',
+               'usage_5g_avg',
+               'dk_std_90_days',
+               'ceiling',
+               'floor',
+	       'DK_Proj_Reg']].to_json(orient='records')
     return(ajax)
-
 
 
 # adjust_minutes
@@ -46,8 +109,8 @@ def get_projections():
 # adjusts min_proj for a specific player
 def adjust_minutes(player, minutes):
     today = datetime.today() - timedelta(hours=4)
-    filename = today.strftime('%Y%m%d')+'_players.csv'
-    path = '/home/ubuntu/dfsharp/csvs/'+filename
+    filename = today.strftime('%Y%m%d') + '_players.csv'
+    path = '/home/ubuntu/dfsharp/csvs/' + filename
     df = pd.read_csv(path)
     # fuzzy match requested player
     playernames = df['name'].tolist()
@@ -55,8 +118,6 @@ def adjust_minutes(player, minutes):
     df.loc[df.name == playername, 'min_3g_avg'] = float(minutes)
     df.to_csv(path)
     return([player, minutes])
-    
-    
 
 
 def run_in_separate_process(func, *args, **kwds):
@@ -71,23 +132,37 @@ def run_in_separate_process(func, *args, **kwds):
             return result
         else:
             raise result
-    else: 
+    else:
         os.close(pread)
         try:
             result = func(*args, **kwds)
             status = 0
-        except Exception, exc:
+        except Exception as exc:
             result = exc
             status = 1
         with os.fdopen(pwrite, 'wb') as f:
             try:
-                cPickle.dump((status,result), f, cPickle.HIGHEST_PROTOCOL)
-            except cPickle.PicklingError, exc:
-                cPickle.dump((2,exc), f, cPickle.HIGHEST_PROTOCOL)
+                cPickle.dump((status, result), f, cPickle.HIGHEST_PROTOCOL)
+            except cPickle.PicklingError as exc:
+                cPickle.dump((2, exc), f, cPickle.HIGHEST_PROTOCOL)
         os._exit(0)
 
 
 app = Flask(__name__)
+
+
+@app.route('/x')
+def pre4():
+    xx = request.args.get('aa', 0, type=str)
+    if len(xx) > 0:
+	player = xx
+	logs = get_gamelogs(player)
+	print(logs)
+	return logs
+    else:
+	return(jsonify('nothing here'))
+    
+
 
 # feeds latest projections into site
 @app.route('/v')
@@ -100,17 +175,17 @@ def pre3():
 # minutes adjustment api- takes input from field, adjusts minutes in file
 @app.route('/u')
 def pre2():
-    # get locks field
+    # get player name
     tx = request.args.get('uu', 0, type=str)
     if len(tx) > 0:
-	splist = tx.split(", ")
+        splist = tx.split(", ")
         player = splist[0]
-	minutes = splist[1]
-	data = adjust_minutes(player, minutes)
-	print('ADJUSTED************************************: '+player+minutes)
-    	return jsonify(result=data)
+        minutes = splist[1]
+        data = adjust_minutes(player, minutes)
+        print('ADJUSTED************************************: ' + player + minutes)
+        return jsonify(result=data)
     else:
-	return jsonify(result=['No adjustment made'])
+        return jsonify(result=['No adjustment made'])
 
 
 @app.route('/t')
@@ -119,12 +194,12 @@ def pre():
     tx = request.args.get('aa', 0, type=str)
     locks = []
     if len(tx) > 0:
-	locks = tx.split(", ")
+        locks = tx.split(", ")
     # get excludes
     ex = request.args.get('bb', 0, type=str)
     excludes = []
     if len(ex) > 0:
-	excludes = ex.split(", ")
+        excludes = ex.split(", ")
     '''
     # get min ownership
     min_own = 0
@@ -141,33 +216,40 @@ def pre():
     min_dvp = 0
     md = request.args.get('ee', 0, type=int)
     if md > 0 and md <= 5:
-	min_dvp = md
+        min_dvp = md
     # get min salary
     min_sal = 2000
     ms = request.args.get('ff', 0, type=int)
     if ms > 2000 and ms < 10000:
-	min_sal = ms
+        min_sal = ms
     # get delta
     delta = 5
     ds = request.args.get('gg', 0, type=int)
     if ds < 5 and ds >= -5:
-	delta = ds
+        delta = ds
     # get target
     target = 'DK_Proj'
     ts = request.args.get('hh', 0, type=str)
-    if type(ts) == str:
-	target = ts
+    if isinstance(ts, str):
+        target = ts
 
-   
-    data = run_in_separate_process(optimizer, locks=locks, exclusions=excludes, delta=int(delta), min_dvp=min_dvp, min_sal=min_sal, target=target)
+    data = run_in_separate_process(
+        optimizer,
+        locks=locks,
+        exclusions=excludes,
+        delta=int(delta),
+        min_dvp=min_dvp,
+        min_sal=min_sal,
+        target=target)
     return(data)
+
 
 @app.route('/', methods=['GET', 'POST'])
 def home_page():
     locks = []
     excludes = []
     if request.method == 'POST':
-	print "HOME PAGE POST"
+        print "HOME PAGE POST"
     else:
         print "HOME PAGE GET"
         return render_template('layout.html')

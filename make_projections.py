@@ -555,13 +555,13 @@ def merge_otp(df):
 '''
 
 
-def project_today(model, df):
+def project_today(model, model1, df):
 
     # adjust min_proj with status info
     df['min_proj'] = df.apply(apply_status, axis=1)
     df['Start'] = df.apply(start_status, axis=1)
     print(len(df))
-    df = df[df['min_proj'] > 7]
+    df = df[df['min_proj'] > 5]
     print(len(df))
 
     today_df = df[['dk_pos',
@@ -601,17 +601,27 @@ def project_today(model, df):
                                                'min_proj',
                                                'home'])
 
-    #features_real = today_df[['Start','dk_per_min','pace_dvp','min_proj']]
+    # generate regresion projections
+    Y_fake, features_reg = dmatrices('''dk_sal ~ Start  + dk_per_min  + dvprank + pace_sum + min_proj
+                                 + home 
+                 ''', data=today_df, return_type='dataframe')
+    # today_df['DK_Proj_Reg'] = (model1.predict(features_reg, transform=False))
+    today_df['DK_Proj_Reg'] = 0
+    # zero out returns dk_proj - not doing this for now
+    # today_df['DK_Proj_Reg'] = today_df.apply(zero_out, axis=1)
+    
+	
 
+	
+
+    # make regrboost projections
     today_df['home'] = today_df['home'].map({'H': 1.0, 'A': 0.0})
     features_real = today_df[['Start', 'dk_per_min',
                               'dvprank', 'pace_sum', 'min_proj', 'home']]
 
     # MAKE LIVE PROJECTIONS <3
     today_df['DK_Proj'] = model.predict(scale(features_real))
-    #today_df['DK_Proj'] = model.predict(features_real)
 
-    #today_df['DK_Proj'] = today_df['DK_Proj']**2
     print(len(today_df))
 
     today_df['proj_pure'] = today_df['min_proj'] * today_df['dk_per_min']
@@ -637,7 +647,9 @@ team_names = team_walk.team_long.tolist()
 # load latest model
 path = '/home/ubuntu/dfsharp/latest_model.p'
 model = pickle.load(open(path, "rb"))
-
+# load regression model
+path = '/home/ubuntu/dfsharp/latest_model1.p'
+model1 = pickle.load(open(path, "rb"))
 
 # In[14]:
 
@@ -668,7 +680,7 @@ twitter = merge_twitter_info(injuries)
 otps = merge_otp(twitter)
 
 # 7) generate today's projections [ update minutes first!]
-today_proj = project_today(model, otps)
+today_proj = project_today(model, model1, otps)
 # 8) push timestamped projections to elasticsearch
 
 
@@ -685,7 +697,7 @@ hio = today_proj[['numpos', 'name', 'dk_sal', 'Start', 'DK_Proj', 'value', 'stat
                   'ownership', 'Opp', 'dvp', 'dvprank', 'otprank', 'otp_value', 'usage_5g_avg', 'mvs_5g_avg',
                   'kpos', 'min_3g_avg', 'starts_past_week', 'b2b', 'usage_3g_avg',
                   'usage_5g_avg', 'value_3g_avg', 'mvs_5g_avg', 'starter_5g_avg', 'proj_pure',
-                  'floor', 'dk_std_90_days']].to_csv(opt_path, index=False)
+                  'floor', 'dk_std_90_days','DK_Proj_Reg']].to_csv(opt_path, index=False)
 
 
 from proj_elastic import InsertProj

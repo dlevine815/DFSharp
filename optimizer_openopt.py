@@ -46,7 +46,7 @@ def fuzzy_match(inputlist, choices):
 
 
 def optimize_grid(delta=[-4, -2, 0, 2, 4], min_dvp=[0, 1, 2, 3], min_sal=[2000, 2500,
-                                                                          3000], exclusions=[], locks=[], target=['DK_Proj', 'min_proj', 'proj_pure']):
+                                                                          3000], exclusions=[], locks=[], target=['DK_Proj', 'DK_Proj_Reg', 'proj_pure']):
 
     df = pd.DataFrame()
     for d in delta:
@@ -72,23 +72,30 @@ def optimizer(locks=[], exclusions=[], delta=0, min_own=0, min_dvp=0,
 
     items = []
     player_ids = {}
+
+    '''
     today = datetime.datetime.today() - datetime.timedelta(hours=4)
     yesterday = today - datetime.timedelta(hours=24)
     path = '/home/ubuntu/dfsharp/opt_csvs/' + \
         today.strftime('%Y%m%d') + '_opt.csv'
     ypath = '/home/ubuntu/dfsharp/opt_csvs/' + \
         yesterday.strftime('%Y%m%d') + '_opt.csv'
+    '''
     abblist = ['bkn', 'bos', 'cha', 'chi', 'cle', 'dal', 'den', 'det', 'hou',
                'ind', 'lac', 'lal', 'mem', 'mia', 'mil', 'min', 'nor', 'nyk',
                'okc', 'orl', 'phi', 'pho', 'por', 'sac', 'sas', 'tor', 'uta',
                'was', 'atl', 'gsw']
 
+    '''
     # read csv of players
     try:
         df = pd.read_csv(path)
     except IOError:
         df = pd.read_csv(ypath)
         path = ypath
+    '''
+    path = ('/home/ubuntu/dfsharp/opt_csvs/20160511_opt.csv')
+    df = pd.read_csv(path)
 
     playernames = df['name'].tolist()
     teamnames = list(df['Team'].unique())
@@ -125,6 +132,7 @@ def optimizer(locks=[], exclusions=[], delta=0, min_own=0, min_dvp=0,
                     'value_3g_avg': float(row[28]) if row[1] not in adjustments.keys() else adjustments[row[1]],
                     'proj_pure': float(row[31]) if row[1] not in adjustments.keys() else adjustments[row[1]],
                     'dk_std_90_days': float(row[33]) if row[1] not in adjustments.keys() else adjustments[row[1]],
+                    'DK_Proj_Reg': float(row[34]) if row[1] not in adjustments.keys() else adjustments[row[1]],
                 }
                 for team in abblist:
                     vals[team] = 1 if row[11] == team else 0
@@ -141,7 +149,7 @@ def optimizer(locks=[], exclusions=[], delta=0, min_own=0, min_dvp=0,
 
     constraints = lambda values: (
         values['lock'] == len(locks),
-        values['salary'] >= 49500,
+        values['salary'] >= int(49500),
         #values['salary'] != 50100,
         values['salary'] <= int(50000),
         values['nItems'] == 8,
@@ -183,8 +191,8 @@ def optimizer(locks=[], exclusions=[], delta=0, min_own=0, min_dvp=0,
     # instead
     df2 = df[df['name'].isin(playerlist)]
     # df2 is the latest lineup - we'll return the frame [for now]
-    df2[['DK_Proj', 'min_proj', 'dk_per_min', 'value', 'usage_5g_avg']] = np.round(
-        df2[['DK_Proj', 'min_proj', 'dk_per_min', 'value', 'usage_5g_avg']], 1)
+    df2[['DK_Proj', 'min_proj', 'dk_per_min', 'value', 'usage_5g_avg','DK_Proj_Reg','ceiling','floor']] = np.round(
+        df2[['DK_Proj', 'min_proj', 'dk_per_min', 'value', 'usage_5g_avg','DK_Proj_Reg','ceiling','floor']], 1)
     ajax = df2[['numpos',
                 'name',
                 'Team',
@@ -196,7 +204,10 @@ def optimizer(locks=[], exclusions=[], delta=0, min_own=0, min_dvp=0,
                 'min_proj',
                 'dk_per_min',
                 'value',
-                'usage_5g_avg']].to_json(orient='records')
+                'usage_5g_avg',
+		'DK_Proj_Reg',
+		'ceiling',
+		'floor']].to_json(orient='records')
     #ajax = df2.to_html(index=False)
 
     InsertProj(df2, indexer="latestlineup")

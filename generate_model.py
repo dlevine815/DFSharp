@@ -439,23 +439,24 @@ def train_save_model(df, num=0, num2=20000):
             'DKP',
             'Start',
             'dk_per_min',
-            'pace_dvp',
-            'combo'])
-    Y_train, X_train = dmatrices('''DKP_trans ~  Start  + dk_per_min + pace_dvp + combo
+            'dvprank',
+            'pace_sum',
+            'min_proj',
+            'home'])
+    Y_train, X_train = dmatrices('''DKP ~  Start  + dk_per_min + dvprank + pace_sum + min_proj + home
                  ''', data=train, return_type='dataframe')
 
     model = sm.OLS(Y_train, X_train)
     results = model.fit()
     print(results.summary())
-    path = '/home/ubuntu/dfsharp/latest_model.p'
+    path = '/home/ubuntu/dfsharp/latest_model1.p'
     pickle.dump(results, open(path, "wb"))
     return(results)
 
 
 def train_save_booster(df, num=0, num2=20000):
     # Load data
-    df = df[
-        num:num2].dropna(
+    df = df[num:num2].dropna(
         subset=[
             'DKP',
             'Start',
@@ -483,7 +484,7 @@ def train_save_booster(df, num=0, num2=20000):
     pickle.dump(clf, open(path, "wb"))
     return(clf)
 
-
+# '''
 # A) daily download
 df = daily_download()
 
@@ -516,14 +517,17 @@ not_today = df[df['index'] != today.strftime('%Y%m%d')]
 not_today.to_csv('gamelogs.csv')
 InsertLogs(not_today, indexer="gamelogs")
 
-
+# '''
+# optional
+# df = pd.read_csv('/home/ubuntu/dfsharp/gamelogs.csv')
 # G) remove outliers for model training
 df = df[df['dvp'] < 29]
 df = df[df['dvp'] > 12]
 df = df[df['dk_avg_90_days'] > 0]
-df = df[df['Minutes'] > 5]
-df = df[df['fga'] > 0]
+df = df[df['Minutes'] > 1]
+#df = df[df['fga'] > 0]
 
 
 # H) train and save the model
 yo = train_save_booster(df, 5000, 20000)
+reg = train_save_model(df, 5000, 20000)

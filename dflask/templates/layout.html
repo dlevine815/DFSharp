@@ -30,11 +30,12 @@
 	<div data-role="collapsible" data-collapsed="true">
 	<h3> Click For More Info</h3>
 	<p> Below, you'll find an interactive lineup optimizer for NBA DFS.  </p>
-	<p> The projections used are updated with live injury information, and the ownership information is live as well, courtesy of <a href="https://www.OwnThePlay.com" target="_blank">OwnThePlay</a></p>
-	<p> Addditional graphs, news, and live analysis can found <a href="http://DFSharps.com" target="_blank">Here</a></p>
+	<p> As the NBA DFS season has concluded, below are sample projections and an optimizer from may 11th, 2016.</p>
+	<!--<p> The projections used are updated with live injury information, and the ownership information is live as well, courtesy of <a href="https://www.OwnThePlay.com" target="_blank">OwnThePlay</a></p>-->
+	<p> Historical graphs, news, and analysis can found <a href="http://DFSharps.com" target="_blank">Here</a></p>
 	<p> Methodology behind the creation of this site, and the accompanying dashboard, can be found <a href="http://shermanash.github.io/DFSharp/" target="_blank">Here</a>
 	<p>This site is open source (code is <a href="https://github.com/shermanash/DFSharp" target="_blank">Here</a>), in active development and new features are added often, so stay tuned for more, and happy optimizing!</p>
-	<p> Keep in mind when building lineups factoring ownership, that ownership information is most useful closer to tip-off, generally from 5-7PM.  </p>
+	<!--<p> Keep in mind when building lineups factoring ownership, that ownership information is most useful closer to tip-off, generally from 5-7PM.  </p>-->
 <p> If you'd like to collaborate, or have any ideas for ways to improve the site, please send me an <a href="mailto:shermanash@gmail.com?Subject=DFSharp" target="_top">email</a></p>
 	</div>
 
@@ -45,7 +46,7 @@
         <ul>
           <li><a href="#fragment-1" class="ui-btn-active">Lineup Optimizer</a></li>
           <li><a href="#fragment-2">Live Projections</a></li>
-          <li><a href="#fragment-3">Work In Progress</a></li>
+          <!--<li><a href="#fragment-3">Work In Progress</a></li>-->
         </ul>
       </div>
       <div id="fragment-1">
@@ -86,6 +87,7 @@ Tip: For the lock and exclude fields, don't worry about spelling Giannis Antetok
    <label for="select-choice-1" class="select">Target to Optimize:</label>
    <select name="select-choice-1" id="select-choice-1">
       <option value="DK_Proj">Projection</option>
+      <!--<option value="DK_Proj_Reg">Alt Projection</option>-->
       <option value="proj_pure">Minutes * (DK/Min)</option>
       <option value="min_proj">Minutes Only</option>
    </select>
@@ -110,12 +112,14 @@ Tip: For the lock and exclude fields, don't worry about spelling Giannis Antetok
                 <th>Team</th>
                 <th>Opp</th>
                 <th>Salary</th>
-                <th>Ownership</th>
                 <th>Projection</th>
+                <!--<th>Alt Projection</th>-->
                 <th>DvP</th>
                 <th>Minutes (Proj*)</th>
                 <th>DK Points/Min</th>
                 <th>Value (Proj/Sal)</th>
+                <th>Ceiling</th>
+                <th>Floor</th>
                 <th>Usage (5g Avg)</th>
             </tr>
         </thead>
@@ -124,8 +128,10 @@ Tip: For the lock and exclude fields, don't worry about spelling Giannis Antetok
             <tr>
                 <th colspan="4" style="text-align:center"></th>
                 <th></th>
-                <th colspan="6" style="text-align:left"></th>
+                <th colspan="5" style="text-align:left"></th>
                 <th></th>
+		<th>Ceiling</th>
+		<th></th>
             </tr>
         </tfoot>
        </table>
@@ -147,12 +153,14 @@ Tip: For the lock and exclude fields, don't worry about spelling Giannis Antetok
 <table id="example2" class="display" cellspacing="0" width="100%">
         <thead>
             <tr>
+		<th></th>
                 <th>Position</th>
                 <th>Name</th>
                 <th>Team</th>
                 <th>Opp</th>
                 <th>Salary</th>
                 <th>Projection</th>
+                <!--<th>Alt Projection</th>-->
                 <th>Min * DK/Min</th>
                 <th>Minutes (Proj*)</th>
                 <th>DK Points/Min</th>
@@ -166,12 +174,14 @@ Tip: For the lock and exclude fields, don't worry about spelling Giannis Antetok
         </thead>
         <tfoot>
             <tr>
+		<th></th>
 		<th>Position</th>
                 <th>Name</th>
                 <th>Team</th>
                 <th>Opp</th>
                 <th>Salary</th>
                 <th>Projection</th>
+                <!--<th>Alt Projection</th>-->
                 <th>Min * DK/Min</th>
                 <th>Minutes (Proj*)</th>
                 <th>DK Points/Min</th>
@@ -185,15 +195,26 @@ Tip: For the lock and exclude fields, don't worry about spelling Giannis Antetok
         </tfoot>
     </table>
       </div>
-      <div id="fragment-3">
-         <p>news, injury updates, graphs on the way!</p>
-      </div>
+      <!--<div id="fragment-3">
+         <p>news, injury updates, graphs on the way</p>
+      </div>-->
     </div>
   </div>
 </div>
 
 
-
+<div style="display:none">    
+    <table id="detailsTable">
+        <thead> 
+            <tr>
+                <th>Player</th>
+                <th>Minutes</th>
+                <th>DKP</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
 
 
      <div>
@@ -259,31 +280,56 @@ Tip: For the lock and exclude fields, don't worry about spelling Giannis Antetok
 	$('#example').dataTable( {
 			"footerCallback": function ( row, data, start, end, display ) {
 			var api = this.api(), data;
-	 
-			    // Total salary
-			    pageTotal = api
-				.column( 4, { page: 'current'} )
-				.data()
-				.reduce( function (a, b) {
-				    return a + b;
-				}, 0 );
-			    // Total proj
-			    projTotal = api
-				.column( 6, { page: 'current'} )
-				.data()
-				.reduce( function (a, b) {
-				    return Math.round(a + b);
-				}, 0 );
-		 
-			    // Update footer
-			    $( api.column( 4 ).footer() ).html(
-				'$'+pageTotal
-			    );
-			// Update footer
-			    $( api.column( 6 ).footer() ).html(
-				'Total Proj: ' + projTotal
-			    );
+		// Total salary
+		    pageTotal = api
+			.column( 4, { page: 'current'} )
+			.data()
+			.reduce( function (a, b) {
+			    return a + b;
+			}, 0 );
+		    // Total proj
+		    projTotal = api
+			.column( 5, { page: 'current'} )
+			.data()
+			.reduce( function (a, b) {
+			    return Math.round(a + b);
+			}, 0 );
 
+		    // Total ceiling
+		    ceilingTotal = api
+			.column( 10, { page: 'current'} )
+			.data()
+			.reduce( function (a, b) {
+			    return Math.round(a + b);
+			}, 0 );
+
+		    // Total floor
+		    floorTotal = api
+			.column( 11, { page: 'current'} )
+			.data()
+			.reduce( function (a, b) {
+			    return Math.round(a + b);
+			}, 0 );
+	 
+		  // update footers
+		    // Update total sal
+		    $( api.column( 4 ).footer() ).html(
+			'$'+pageTotal
+		    );
+	     	// Update total proj
+		    $( api.column( 5 ).footer() ).html(
+			'Total Proj: ' + projTotal
+		    );
+		// Update ceiling
+		    $( api.column( 10 ).footer() ).html(
+			'Ceiling: ' + ceilingTotal
+		    );
+		// Update floor
+		    $( api.column( 11 ).footer() ).html(
+			'Floor: ' + floorTotal
+		    );
+ 
+		
 			},
 		"destroy": true,
 		"searching": false,
@@ -303,12 +349,15 @@ Tip: For the lock and exclude fields, don't worry about spelling Giannis Antetok
 		{"mData":"Team"},
 		{"mData":"Opp"},
 		{"mData":"dk_sal"},
-		{"mData":"ownership"},
+		//{"mData":"ownership"},
 		{"mData":"DK_Proj"},
+		//{"mData":"DK_Proj_Reg"},
 		{"mData":"dvprank"},
 		{"mData":"min_proj"},
 		{"mData":"dk_per_min"},
 		{"mData":"value"},
+		{"mData":"ceiling"},
+		{"mData":"floor"},
 		{"mData":"usage_5g_avg"},
 		]
 	} );
@@ -335,20 +384,47 @@ $(document).ready( function () {
 			}, 0 );
 		    // Total proj
 		    projTotal = api
-			.column( 6, { page: 'current'} )
+			.column( 5, { page: 'current'} )
+			.data()
+			.reduce( function (a, b) {
+			    return Math.round(a + b);
+			}, 0 );
+
+		    // Total ceiling
+		    ceilingTotal = api
+			.column( 10, { page: 'current'} )
+			.data()
+			.reduce( function (a, b) {
+			    return Math.round(a + b);
+			}, 0 );
+
+		    // Total floor
+		    floorTotal = api
+			.column( 11, { page: 'current'} )
 			.data()
 			.reduce( function (a, b) {
 			    return Math.round(a + b);
 			}, 0 );
 	 
-		    // Update footer
+		  // update footers
+		    // Update total sal
 		    $( api.column( 4 ).footer() ).html(
 			'$'+pageTotal
 		    );
-	     	// Update footer
-		    $( api.column( 6 ).footer() ).html(
+	     	// Update total proj
+		    $( api.column( 5 ).footer() ).html(
 			'Total Proj: ' + projTotal
 		    );
+		// Update ceiling
+		    $( api.column( 10 ).footer() ).html(
+			'Ceiling: ' + ceilingTotal
+		    );
+		// Update floor
+		    $( api.column( 11 ).footer() ).html(
+			'Floor: ' + floorTotal
+		    );
+
+
 
 		},
 		"searching": false,
@@ -368,27 +444,149 @@ $(document).ready( function () {
 		{"mData":"Team"},
 		{"mData":"Opp"},
 		{"mData":"dk_sal"},
-		{"mData":"ownership"},
+		//{"mData":"ownership"},
 		{"mData":"DK_Proj"},
+		//{"mData":"DK_Proj_Reg"},
 		{"mData":"dvprank"},
 		{"mData":"min_proj"},
 		{"mData":"dk_per_min"},
 		{"mData":"value"},
+		{"mData":"ceiling"},
+		{"mData":"floor"},
 		{"mData":"usage_5g_avg"},
 				]
 	} );
 } );
 
+
+
+function format ( d ) {
+	$.ajax({url: "/x?aa="+d.name, success: function(result) {
+		return $("#div1").html(result);
+	}});
+};
+
+
+
+function format3 ( d ) {
+
+
+	$(document).ready(function() {
+		var deTable = $('#detailsTable').DataTable( {
+		//return	$('#detailsTable').DataTable( {
+			"ajax": {
+	    		"url": "/x?aa="+d.name,
+	    		"dataSrc": ""
+	  },
+		"aoColumns":[
+		{"mData":"name"},
+		{"mData":"DKP"},
+		{"mData":"Minutes"},
+			]
+	} );
+
+	return deTable.html
+} );
+}
+
+function format2 ( d ) {
+return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+
+        '<tr>'+
+            '<td>Full name:</td>'+
+            '<td>'+d.name+'</td>'+
+        '</tr>'+
+        '<tr>'+
+            '<td>Extension number:</td>'+
+        '</tr>'+
+        '<tr>'+
+            '<td>Extra info:</td>'+
+            '<td>And any further details here (images etc)...</td>'+
+        '</tr>'+
+    '</table>';
+
+}
+	
+
+
+function fnFormatDetails(table_id, html) {
+    var sOut = "<table id=\"exampleTable_" + table_id + "\">";
+    sOut += html;
+    sOut += "</table>";
+    return sOut;
+}
+
+
+
+var iTableCounter = 1;
+    var oTable;
+    var oInnerTable;
+    var TableHtml;
+
+
+
 // Projections DataTable ... 
 $(document).ready( function () {
-	$('#example2').dataTable( {
+
+	//Run On HTML Build
+        TableHtml = $("#example2").html();
+
+
+        //Insert a 'details' column to the table
+        var nCloneTh = document.createElement('th');
+        var nCloneTd = document.createElement('td');
+        nCloneTd.innerHTML = '<img src="http://i.imgur.com/SD7Dz.png">';
+        nCloneTd.className = "center";
+
+        $('#exampleTable thead tr').each(function () {
+            this.insertBefore(nCloneTh, this.childNodes[0]);
+        });
+
+        $('#exampleTable tbody tr').each(function () {
+            this.insertBefore(nCloneTd.cloneNode(true), this.childNodes[0]);
+        });
+
+
+	var oTable = $('#example2').DataTable( {
+
+
+		initComplete: function () {
+		    this.api().columns().every( function () {
+			var column = this;
+			var select = $('<select><option value=""></option></select>')
+			    .appendTo( $(column.footer()).empty() )
+			    .on( 'change', function () {
+				var val = $.fn.dataTable.util.escapeRegex(
+				    $(this).val()
+				);
+	 
+				column
+				    .search( val ? '^'+val+'$' : '', true, false )
+				    .draw();
+			    } );
+	 
+			column.data().unique().sort().each( function ( d, j ) {
+			    select.append( '<option value="'+d+'">'+d+'</option>' )
+			} );
+		    } );
+		},
+
+		    "bJQueryUI": true,
+		    "sPaginationType": "full_numbers",
 		"scrollX": true,
-		"order": [[4, "desc"]],
+		"bAutoWidth": false,
+		"order": [[5, "desc"]],
 	  "ajax": {
 	    "url": "/v?",
 	    "dataSrc": ""
 	  },
 	"aoColumns":[
+		{
+                "className":      'details-control',
+                "orderable":      false,
+                "data":           null,
+                "defaultContent": '',
+		"width": "20px"
+            	},
 		{"mData":"numpos"},
 		{"mData":"name"},
 		{"mData":"Team"},
@@ -396,6 +594,7 @@ $(document).ready( function () {
 		{"mData":"dk_sal"},
 		//{"mData":"ownership"},
 		{"mData":"DK_Proj"},
+		//{"mData":"DK_Proj_Reg"},
 		{"mData":"proj_pure"},
 		{"mData":"min_proj"},
 		{"mData":"dk_per_min"},
@@ -409,7 +608,42 @@ $(document).ready( function () {
 				]
 	});
 
-} );
+	
+
+
+	// Add event listener for opening and closing details
+	//    $('#example2 tbody').on('click', 'td.details-control', function () {
+	//	var tr = $(this).closest('tr');
+	//	var row = table.row( tr );
+	// 
+	//	if ( row.child.isShown() ) {
+	//	    // This row is already open - close it
+	//	    row.child.hide();
+	//	    tr.removeClass('shown');
+	//	}
+	//	else {
+	//	    // Open this row
+	//	var dra = row.data();
+	//	var datas = $.ajax({url: "/x?aa="+dra.name});
+	//	datas.print()
+	//	    //row.child( format(row.data()) ).show();
+	//	    tr.addClass('shown');
+	//	}
+	//    } );
+
+
+ } );
+
+
+
+    
+               
+
+
+
+
+
+
 </script>
 
 <!--
