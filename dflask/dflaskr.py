@@ -5,12 +5,11 @@ import pickle
 from flask import Flask, render_template, redirect, url_for, request, abort, jsonify
 import sys
 sys.path.append('/home/ubuntu/dfsharp/')
-
 from optimizer_openopt import optimizer
 from optimizer_openopt import fuzzy_match
+sys.path.append('/home/ubuntu/dfsharp/mlb_dfs')
+from optimizer_mlb import mlb_optimize
 from datetime import datetime, timedelta
-
-
 import os
 import cPickle
 
@@ -43,6 +42,67 @@ def get_gamelogs(player):
                #'floor',
 	       'Minutes']].to_json(orient='records')
     return(ajax)
+
+
+# get mlb projections
+def get_mlb_projections(pos='_hitters'):
+    today = datetime.today() - timedelta(hours=4)
+    yesterday = today - timedelta(hours=24)
+
+    filename = today.strftime('%Y%m%d') + pos + '.csv'
+    path = '/home/ubuntu/dfsharp/mlb_dfs/projections/' + filename
+    ypath = '/home/ubuntu/dfsharp/mlb_dfs/projections/' + \
+        yesterday.strftime('%Y%m%d') + pos + '.csv'
+    # read csv
+    try:
+        df = pd.read_csv(path)
+    except IOError:
+        df = pd.read_csv(ypath)
+        path = ypath
+
+    if pos == '_hitters':
+	ajax = df[['time',
+               'dk_pos',
+               'player',
+               'dk_sal',
+               'team',
+               'matchup',
+               'order',
+               'bats',
+               'vshand',
+               'vsp',
+               'line',
+               'ou',
+               'total',
+		'cruz',
+		'Cruz_Value',
+               'DK_Value',
+               'DK_Aggregate',
+               'DK_Rotogrind',
+               'DK_Sabersim',
+               'DK_Swish',
+               'DK_Numberfire',
+	       'DK_Cafe']].to_json(orient='records')
+    elif pos == '_pitchers':
+	ajax = df[['player',
+		   'dk_sal',
+		   'team',
+		   'matchup',
+		   'hand',
+		   'line',
+		   'ou',
+		   'total',
+		'cruz',
+		'Cruz_Value',
+		   'DK_Value',
+		   'DK_Aggregate',
+		   'DK_Rotogrind',
+		   'DK_Sabersim',
+		   'DK_Swish',
+		   'DK_Numberfire',
+		   'DK_Cafe']].to_json(orient='records')
+    return(ajax)
+
 
 
 # get_projections from opt csv
@@ -150,6 +210,64 @@ def run_in_separate_process(func, *args, **kwds):
 
 app = Flask(__name__)
 
+@app.route('/bb')
+def mlbopt():
+    # get locks field
+    tx = request.args.get('aa', 0, type=str)
+    locks = []
+    if len(tx) > 0:
+        locks = tx.split(", ")
+    # get excludes
+    ex = request.args.get('bb', 0, type=str)
+    excludes = []
+    if len(ex) > 0:
+        excludes = ex.split(", ")
+    # get min salary
+    min_sal = 2000
+    ms = request.args.get('ff', 0, type=int)
+    if ms > 2000 and ms < 10000:
+        min_sal = ms
+    # get maxorder
+    maxorder = 9
+    os = request.args.get('ee', 0, type=int)
+    if os < 9:
+        maxorder = os
+    # get delta
+    delta = 5
+    ds = request.args.get('gg', 0, type=int)
+    if ds < 5 and ds >= -5:
+        delta = ds
+    # get target
+    target = 'DK_Aggregate'
+    ts = request.args.get('hh', 0, type=str)
+    if isinstance(ts, str):
+        target = ts
+
+    data = run_in_separate_process(
+        mlb_optimize,
+        locks=locks,
+        exclusions=excludes,
+        delta=int(delta),
+	maxorder=maxorder,
+        min_sal=min_sal,
+        target=target)
+    return(data)
+
+
+
+# feeds latest hitter projections into site
+@app.route('/pp')
+def pitchproj():
+    # send projections in datatable format to webpage
+    data = get_mlb_projections(pos='_pitchers')
+    return data
+
+# feeds latest batter projections into site
+@app.route('/hp')
+def hitproj():
+    # send projections in datatable format to webpage
+    data = get_mlb_projections(pos='_hitters')
+    return data
 
 @app.route('/x')
 def pre4():
@@ -246,8 +364,6 @@ def pre():
 
 @app.route('/', methods=['GET', 'POST'])
 def home_page():
-    locks = []
-    excludes = []
     if request.method == 'POST':
         print "HOME PAGE POST"
     else:

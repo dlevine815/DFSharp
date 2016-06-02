@@ -102,7 +102,7 @@ def get_numberfire(pitchers=True):
     else:
         url = 'http://www.numberfire.com/mlb/daily-fantasy/daily-baseball-projections'
             
-    driver = webdriver.PhantomJS()
+    driver = webdriver.PhantomJS(service_args=['--ssl-protocol=any'])
     driver.set_window_size(1120, 550)
     driver.get(url)
     
@@ -367,10 +367,21 @@ def build_roto_pitchers(jsonobj):
                       })
     return(rf)
 
+def get_cruz():
+    cruzh = pd.read_html('https://rotogrinders.com/pages/c-r-u-z-mlb-model-792518')
+    czh = cruzh[1]   
+    
+    cruzp = pd.read_html('https://rotogrinders.com/pages/c-r-u-z-mlb-model-792521')
+    czp = cruzp[1]
+    
+    czh['cruz'] = czh['\tRating\t']
+    czp['cruz'] = czp['\tRating\t']
+    
+    return(czh, czp)
 
 # In[15]:
 
-def merge_players(rgh, fgh, swh, nfh, fch, rgh2, site='dk', pitchers=False):
+def merge_players(rgh, fgh, swh, nfh, fch, rgh2, czh, site='dk', pitchers=False):
     # rename columns
     fgh['DK_Sabersim'] = fgh['DraftKings']
     fgh['FD_Sabersim'] = fgh['FanDuel']
@@ -397,6 +408,10 @@ def merge_players(rgh, fgh, swh, nfh, fch, rgh2, site='dk', pitchers=False):
     
     # merge in RG2
     df5 = pd.merge(df5, rgh2, left_on='player', right_on='name', how='inner')
+
+    # merge in cruz
+    cz = czh[['\tPlayer\t','cruz']]
+    df5 = pd.merge(df5, cz, left_on='player', right_on='\tPlayer\t', how='inner')
     
     # convert columns to numeric
     df5 = df5.convert_objects(convert_numeric=True) 
@@ -410,12 +425,14 @@ def merge_players(rgh, fgh, swh, nfh, fch, rgh2, site='dk', pitchers=False):
         df5['DK_plusminus'] = df5['DK_Aggregate'] - df5['dk_avg']
         # create value, standard dev, ceiling and floor
         df5['DK_Value'] = df5['DK_Aggregate'] / (df5['dk_sal'] / 1000)
+	# cruz value
+	df5['Cruz_Value'] = df5['cruz'] / (df5['dk_sal'] / 1000)
         df5['DK_Std'] = df5[['DK_Rotogrind','DK_Sabersim','DK_Swish','DK_Numberfire','DK_Cafe']].std(axis=1).round(3)
         df5['DK_Ceiling'] = df5['DK_Aggregate'] + (2*df5['DK_Std'])
         df5['DK_Floor'] = df5['DK_Aggregate'] - (2*df5['DK_Std'])
         if pitchers==False:
             dk = df5[['player','time','team','matchup','bats','vshand','vsp','order'
-                      ,'line','ou','total'
+                      ,'line','ou','total','cruz','Cruz_Value'
                      ,'dk_sal','dk_pos','dk_avg','DK_Rotogrind','DK_Sabersim'
                      ,'DK_Swish','DK_Numberfire','DK_Cafe','DK_Aggregate'
                      ,'DK_Value','DK_Floor','DK_Ceiling','DK_Std']]
@@ -423,7 +440,7 @@ def merge_players(rgh, fgh, swh, nfh, fch, rgh2, site='dk', pitchers=False):
             dk = df5[['player','team','matchup','hand','line','ou','total'
                      ,'dk_sal','dk_pos','dk_avg','DK_Rotogrind','DK_Sabersim'
                      ,'DK_Swish','DK_Numberfire','DK_Cafe','DK_Aggregate'
-                     ,'DK_Value','DK_Floor','DK_Ceiling','DK_Std'
+                     ,'DK_Value','DK_Floor','DK_Ceiling','DK_Std','cruz','Cruz_Value'
                     # ,'lwoba','rwoba','lk9','rk9'
                      ]]      
         tmp = dk.select_dtypes(include=[np.number])
@@ -436,12 +453,14 @@ def merge_players(rgh, fgh, swh, nfh, fch, rgh2, site='dk', pitchers=False):
         df5['FD_plusminus'] = df5['FD_Aggregate'] - df5['fd_avg']
         # fd value
         df5['FD_Value'] = df5['FD_Aggregate'] / (df5['fd_sal'] / 1000)    
+	# cruz value
+	df5['Cruz_Value'] = df5['cruz'] / (df5['fd_sal'] / 1000)
         df5['FD_Std'] = df5[['FD_Rotogrind','FD_Sabersim','FD_Swish','FD_Numberfire','FD_Cafe']].std(axis=1).round(3)
         df5['FD_Ceiling'] = df5['FD_Aggregate'] + (2*df5['FD_Std'])
         df5['FD_Floor'] = df5['FD_Aggregate'] - (2*df5['FD_Std'])
         if pitchers==False:
             fd = df5[['player','time','team','matchup','bats','vshand','vsp','order'
-                      ,'line','ou','total'
+                      ,'line','ou','total','cruz','Cruz_Value'
                      ,'fd_sal','fd_pos','fd_avg','FD_Rotogrind','FD_Sabersim'
                      ,'FD_Swish','FD_Numberfire','FD_Cafe','FD_Aggregate'
                      ,'FD_Value','FD_Floor','FD_Ceiling','FD_Std']]
@@ -449,7 +468,7 @@ def merge_players(rgh, fgh, swh, nfh, fch, rgh2, site='dk', pitchers=False):
             fd = df5[['player','team','matchup','hand','line','ou','total'
                      ,'fd_sal','fd_pos','fd_avg','FD_Rotogrind','FD_Sabersim'
                      ,'FD_Swish','FD_Numberfire','FD_Cafe','FD_Aggregate'
-                     ,'FD_Value','FD_Floor','FD_Ceiling','FD_Std'
+                     ,'FD_Value','FD_Floor','FD_Ceiling','FD_Std','cruz','Cruz_Value'
                     # ,'lwoba','rwoba','lk9','rk9'
                      ]]
         tmp = fd.select_dtypes(include=[np.number])
@@ -492,9 +511,15 @@ def get_aggregates(site='dk'):
     rgp2 = rg2[0]
     # rotogrinders full batters
     rgh2 = rg2[1]
+
+    cz = get_cruz()
+    # cruz batters
+    czh = cz[0]
+    # cruz hitters
+    czp = cz[1]
     
-    hitters = merge_players(rgh, fgh, swh, nfh, fch, rgh2, site=site, pitchers=False)
-    pitchers = merge_players(rgp, fgp, swp, nfp, fcp, rgp2, site=site, pitchers=True)
+    hitters = merge_players(rgh, fgh, swh, nfh, fch, rgh2, czh, site=site, pitchers=False)
+    pitchers = merge_players(rgp, fgp, swp, nfp, fcp, rgp2, czp, site=site, pitchers=True)
     
     return(hitters, pitchers)
 
@@ -505,11 +530,12 @@ agg = get_aggregates(site='dk')
 hitters = agg[0]
 pitchers = agg[1]
 
-today = datetime.datetime.today() - datetime.timedelta(hours=4)
-path = '/home/ubuntu/dfsharp/mlb_dfs/projections/'+today.strftime('%Y%m%d')
+if len(hitters) > 10:
 
-hitters.to_csv(path+'_hitters.csv')
-pitchers.to_csv(path+'_pitchers.csv')
+    today = datetime.datetime.today() - datetime.timedelta(hours=4)
+    path = '/home/ubuntu/dfsharp/mlb_dfs/projections/'+today.strftime('%Y%m%d')
 
-# write to c
+    hitters.to_csv(path+'_hitters.csv')
+    pitchers.to_csv(path+'_pitchers.csv')
+
 

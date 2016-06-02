@@ -7,6 +7,7 @@ import cnfg
 import pandas as pd
 from nltk.tokenize import sent_tokenize
 from vaderSentiment.vaderSentiment import sentiment as vaderSentiment
+import datetime
 
 
 config = cnfg.load("/home/ubuntu/dfsharp/.webhoser_config")
@@ -17,8 +18,12 @@ webhose.config(token=tok)
 
 
 def get_archive():
-    # get response from webhose query "NBA DFS"
-    response = unirest.get("https://webhose.io/search?token=" + tok + "&format=json&q=NBA+DFS",
+    yesterday = datetime.date.today() - datetime.timedelta(hours=24)
+    unix_time = yesterday.strftime("%s")
+    # get response from webhose query 
+    # response = unirest.get("https://webhose.io/search?token=" + tok + "&format=json&q=NBA+DFS",
+    response = unirest.get("https://webhose.io/search?token=" + tok + "&format=json&q=MLB%20DFS",
+    # response = unirest.get("https://webhose.io/search?token=" + tok + "&format=json&q=MLB+DFS+ts="+unix_time,
 
                            headers={
                                "Accept": "application/json"
@@ -31,8 +36,23 @@ def get_archive():
 # In[4]:
 
 def get_playerlist():
+    ''' old method for nba-
     df = pd.read_csv('/home/ubuntu/dfsharp/playernames.csv')
     playerlist = df['allplayers.text']
+    '''
+    # new method for mlb
+    today = datetime.datetime.today() - datetime.timedelta(hours=4)
+    yesterday = today - datetime.timedelta(hours=28)
+
+    try:
+	hit = pd.read_csv('/home/ubuntu/dfsharp/mlb_dfs/projections/' + today.strftime('%Y%m%d') + '_hitters.csv')
+	pit = pd.read_csv('/home/ubuntu/dfsharp/mlb_dfs/projections/' + today.strftime('%Y%m%d') + '_pitchers.csv')
+    except IOError:
+	hit = pd.read_csv('/home/ubuntu/dfsharp/mlb_dfs/projections/' + yesterday.strftime('%Y%m%d') + '_hitters.csv')
+	pit = pd.read_csv('/home/ubuntu/dfsharp/mlb_dfs/projections/' + yesterday.strftime('%Y%m%d') + '_pitchers.csv')
+
+    df = hit['player']
+    playerlist = df.append(pit['player'])
 
     plist = []
     for p in playerlist:
@@ -141,6 +161,13 @@ def get_all_news():
 
 # In[27]:
 
+def get_vader(row):
+    try:
+        vader = vaderSentiment(row['news'])['compound']
+    except:
+	vader = 0
+    return(vader)
+
 
 # inserts df into elastic search
 def insert_elastic():
@@ -167,19 +194,27 @@ def insert_elastic():
     }
 
     es = Elasticsearch()
-    # es.indices.create("playernews")
+    #es.indices.create("mlbnews")
     es.indices.put_mapping(
-        index="playernews",
+	index="mlbnews",
+        #index="playernews",
         doc_type="article",
         body=mapping)
     df = get_all_news()
-    df.to_csv('webhose_latest.csv', encoding='UTF-8')
+
+    # group by player, take uniques, vader on paragraph, write to csv
+    if len(df) > 0:
+        df2 = df.groupby(['player'])['news'].apply(lambda x: '\n\t'.join(set(x))).reset_index()
+        df2['sentiment'] = df2.apply(get_vader, axis=1)
+	df2['chars'] = df2['news'].str.len()
+        df2.to_csv('/home/ubuntu/dfsharp/mlb_dfs/webhose_latest.csv', encoding='UTF-8')
+
 
     for index, i in df.iterrows():
 
         # for i in response.body['posts']:
         try:
-            es.index(index="playernews",
+            es.index(index="mlbnews",#index="playernews",
                      doc_type="article",
                      id=i['id'],
                      op_type="create",

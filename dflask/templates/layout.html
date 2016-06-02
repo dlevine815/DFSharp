@@ -40,17 +40,229 @@
 	</div>
 
   </div>
-  <div role="main" class="ui-content">
-    <div data-role="tabs">
-      <div data-role="navbar">
-        <ul>
-          <li><a href="#fragment-1" class="ui-btn-active">Lineup Optimizer</a></li>
-          <li><a href="#fragment-2">Live Projections</a></li>
-          <!--<li><a href="#fragment-3">Work In Progress</a></li>-->
-        </ul>
-      </div>
-      <div id="fragment-1">
 
+
+
+<div class="tabbable boxed parentTabs">
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="#set1">MLB</a>
+        </li>
+        <li><a href="#set2">NBA</a>
+        </li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane fade active in" id="set1">
+            <div class="tabbable">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="#sub11">MLB Optimizer</a>
+                    </li>
+                    <li><a href="#sub12">Latest Batter Projections</a>
+                    </li>
+                    <li><a href="#sub13">Latest Pitcher Projections</a>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane fade active in" id="sub11">
+			<!-- MLB LINEUP OPTIMIZER -->
+		Tip: For the lock and exclude fields, don't worry about spelling Xander Bogaerts perfectly- as long as you're close, DFSharp will guess correctly.
+		<form>
+		<div class="form-group">
+			<input type="text" class="form-control" name="mllocker" placeholder="Locks- e.g. Clayton Kershaw, David Ortiz"></div>
+		<div class="form-group">
+			<input type="text" class="form-control" name="mlexcluder" placeholder="Excludes (or teams)- e.g. Derek Jeter, nyy, nym">
+		</div>
+		<p>Max Batting Order:</p>
+		<div class="form-group" data-mini="true">
+		  <input type="range" data-highlight="true"  name="mlmaxorder" value="9" min="3" max="9" data-show-value="true">
+		</div>
+		 <p>Minimum Salary:</p>
+		<div class="form-group" data-mini="true">
+		  <input type="range" data-highlight="true"  name="mlminsal" value="2000" min="2000" max="4000" data-show-value="true">
+		</div>
+
+		<p>Enter Variance Weight: -5 is Min Variance [Cash] | 0 is Target only | 5 is Max Variance [GPP]</p>
+		<div class="form-group">
+		  <input type="range" name="mlsliderbar" id="mlex1" value="0" min="-5" max="5" data-show-value="true" data-theme="b" data-track-theme="b">
+		</div>
+		 
+		<div data-role="fieldcontain" class="form-group">
+		   <label for="mlb-target-choice" class="select">Target to Optimize:</label>
+		   <select name="mlb-target-choice" id="mlb-target-choice">
+		      <option value="DK_Aggregate">Aggregate Projection</option>
+		      <option value="cruz">C.R.U.Z. Model</option>
+		      <option value="DK_Rotogrind">Rotogrinders Projection</option>
+		      <option value="DK_Sabersim">Sabersim Projection</option>
+		      <option value="DK_Swish">Swish Analytics Projection</option>
+		      <option value="DK_Numberfire">NumberFire Projection</option>
+		      <option value="DK_Cafe">DailyFantasyCafe Projection</option>
+		   </select>
+		</div>
+
+		<a href="javascript:void();" type="submit" id="mlcal">
+		<div class="ui-btn ui-input-btn ui-shadow">
+		   Show Me The Lineup! (May Take Up To 7 seconds)
+		  <input type="button" data-corners="false" data-enhanced="true" value="Show Me The Lineup!"></input>
+		</div>
+
+		</a>
+
+		</form>
+
+		<!-- begin table which displays latest lineup-->
+		<table id="mlblineup" class="display" cellspacing="0" width="100%">
+			<thead>
+			    <tr>
+				<th>Position</th>
+				<th>Name</th>
+				<th>Team</th>
+				<th>Opp</th>
+				<th>Salary</th>
+				<th>CRUZ</th>
+				<th>Cruz_Value</th>
+				<th>Value (Proj/Sal)</th>
+				<th>Aggregate</th>
+			    </tr>
+			</thead>
+
+			<tfoot>
+			    <tr>
+				<th></th>
+				<!--<th colspan="4" style="text-align:center"></th>
+				<th></th>
+				<th colspan="6" style="text-align:left"></th>-->
+				<th></th>
+				<th></th>
+				<th></th>
+				<th></th>
+				<th></th>
+				<th></th>
+				<th></th>
+				<th></th>
+			    </tr>
+			</tfoot>
+		       </table>
+                    </div>
+ 
+                    <div class="tab-pane fade" id="sub12">
+			<p> Projections are scraped and aggregated every 15 minutes from 5 free projection sites: rotogrinders, numberfire, fantasycafe, fangraphs, and swishanalytics</p>
+
+			<table id="hitterproj" class="display" cellspacing="0" width="100%">
+				<thead>
+				    <tr>
+					<th>Game Time</th>
+					<th>Pos</th>
+					<th>Player Name</th>
+					<th>Salary</th>
+					<th>Team</th>
+					<th>Matchup</th>
+					<th>Order</th>
+					<th>Bat</th>
+					<th>Vs</th>
+					<th>Facing Pitcher</th>
+					<th>Line</th>
+					<th>O/U</th>
+					<th>Total</th>
+					<th>CRUZ</th>
+					<th>Cruz_Value</th>
+					<th>Value</th>
+					<th>Aggregate</th>
+					<th>Rotogrinders</th>
+					<th>Sabersim</th>
+					<th>Swish</th>
+					<th>Numberfire</th>
+					<th>FantasyCafe</th>
+				    </tr>
+				</thead>
+				<tfoot>
+				    <tr>
+					<th>Game Time</th>
+					<th>Pos</th>
+					<th>Player Name</th>
+					<th>Salary</th>
+					<th>Team</th>
+					<th>Matchup</th>
+					<th>Order</th>
+					<th>Bat</th>
+					<th>Vs</th>
+					<th>Facing Pitcher</th>
+					<th>Line</th>
+					<th>O/U</th>
+					<th>Total</th>
+					<th>CRUZ</th>
+					<th>Cruz_Value</th>
+					<th>Value</th>
+					<th>Aggregate</th>
+					<th>Rotogrinders</th>
+					<th>Sabersim</th>
+					<th>Swish</th>
+					<th>Numberfire</th>
+					<th>FantasyCafe</th>
+				   </tr>
+				</tfoot>
+			    </table>
+                    </div>
+			<div class="tab-pane fade" id="sub13">
+			<p> Projections are scraped and aggregated every 15 minutes from 5 free projection sites: rotogrinders, numberfire, fantasycafe, fangraphs, and swishanalytics</p>
+			<table id="pitcherproj" class="display" cellspacing="0" width="100%">
+				<thead>
+				    <tr>
+					<th>Player Name</th>
+					<th>Salary</th>
+					<th>Team</th>
+					<th>Matchup</th>
+					<th>Hand</th>
+					<th>Line</th>
+					<th>O/U</th>
+					<th>Total</th>
+					<th>CRUZ</th>
+					<th>Cruz_Value</th>
+					<th>Value</th>
+					<th>Aggregate</th>
+					<th>Rotogrinders</th>
+					<th>Sabersim</th>
+					<th>Swish</th>
+					<th>Numberfire</th>
+					<th>FantasyCafe</th>
+				    </tr>
+				</thead>
+				<tfoot>
+				    <tr>
+					<th>Player Name</th>
+					<th>Salary</th>
+					<th>Team</th>
+					<th>Matchup</th>
+					<th>Hand</th>
+					<th>Line</th>
+					<th>O/U</th>
+					<th>Total</th>
+					<th>CRUZ</th>
+					<th>Cruz_Value</th>
+					<th>Value</th>
+					<th>Aggregate</th>
+					<th>Rotogrinders</th>
+					<th>Sabersim</th>
+					<th>Swish</th>
+					<th>Numberfire</th>
+					<th>FantasyCafe</th>
+				   </tr>
+				</tfoot>
+			    </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="set2">
+            <div class="tabbable">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="#sub21">NBA Optimizer</a>
+                    </li>
+                    <li><a href="#sub22">NBA Projections</a>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane fade active in" id="sub21">
+<!-- NBA OPTIMIZER TAB-->
 
 Tip: For the lock and exclude fields, don't worry about spelling Giannis Antetokounmpo perfectly- as long as you're close, DFSharp will guess correctly- and for most players not named James or Kevin, just a first or last name will be enough.
 <form>
@@ -135,8 +347,13 @@ Tip: For the lock and exclude fields, don't worry about spelling Giannis Antetok
             </tr>
         </tfoot>
        </table>
-      </div>
-      <div id="fragment-2">
+ 
+
+
+                    </div>
+                    <div class="tab-pane fade" id="sub22">
+<!-- NBA PROJECTIONS TAB-->
+
 <h3 id='mytitle'>Latest Projections</h1>
 <p> Updated every 10 minutes to include minutes adjustments and latest injury updates.  Tip: Sort on multiple columns by holding down the Shift key.</p>
 
@@ -216,8 +433,11 @@ Tip: For the lock and exclude fields, don't worry about spelling Giannis Antetok
     </table>
 </div>
 
-
-     <div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 
@@ -277,6 +497,15 @@ Tip: For the lock and exclude fields, don't worry about spelling Giannis Antetok
 	        var gg = $('input[name="sliderbar"]').val();
 		var e = document.getElementById("select-choice-1");
 		var hh = e.options[e.selectedIndex].value;
+
+	$("a[data-toggle=\"tab\"]").on("shown.bs.tab", function (e) {
+		console.log( 'show tab' );
+		$($.fn.dataTable.tables(true)).DataTable()
+		.columns.adjust()
+		.responsive.recalc();
+	} );
+
+
 	$('#example').dataTable( {
 			"footerCallback": function ( row, data, start, end, display ) {
 			var api = this.api(), data;
@@ -371,6 +600,13 @@ Tip: For the lock and exclude fields, don't worry about spelling Giannis Antetok
 <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.11/js/jquery.dataTables.js"></script>
 <script type="text/javascript">
 $(document).ready( function () {
+	$("a[data-toggle=\"tab\"]").on("shown.bs.tab", function (e) {
+		console.log( 'show tab' );
+		$($.fn.dataTable.tables(true)).DataTable()
+		.columns.adjust()
+		.responsive.recalc();
+	} );
+
 	$('#example').dataTable( {
 		"footerCallback": function ( row, data, start, end, display ) {
             	var api = this.api(), data;
@@ -527,6 +763,14 @@ var iTableCounter = 1;
 // Projections DataTable ... 
 $(document).ready( function () {
 
+	$("a[data-toggle=\"tab\"]").on("shown.bs.tab", function (e) {
+		console.log( 'show tab' );
+		$($.fn.dataTable.tables(true)).DataTable()
+		.columns.adjust()
+		.responsive.recalc();
+	} );
+
+
 	//Run On HTML Build
         TableHtml = $("#example2").html();
 
@@ -636,10 +880,176 @@ $(document).ready( function () {
 
 
 
+$("ul.nav-tabs a").click(function (e) {
+	e.preventDefault();
+	$(this).tab('show');
+});
     
                
+// MLB OPTIMIZER9
+ $(function() {
+       $('a#mlcal').bind('click', function() {
+		var aa = $('input[name="mllocker"]').val();
+	        var bb = $('input[name="mlexcluder"]').val();
+	        var ee = $('input[name="mlmaxorder"]').val();
+	        var ff = $('input[name="mlminsal"]').val();
+	        var gg = $('input[name="mlsliderbar"]').val();
+		var e = document.getElementById("mlb-target-choice");
+		var hh = e.options[e.selectedIndex].value;
+
+	$("a[data-toggle=\"tab\"]").on("shown.bs.tab", function (e) {
+		console.log( 'show tab' );
+		$($.fn.dataTable.tables(true)).DataTable()
+		.columns.adjust()
+		.responsive.recalc();
+	} );
 
 
+	$('#mlblineup').dataTable( {
+			"footerCallback": function ( row, data, start, end, display ) {
+			var api = this.api(), data;
+		// Total salary
+		    pageTotal = api
+			.column( 4, { page: 'current'} )
+			.data()
+			.reduce( function (a, b) {
+			    return a + b;
+			}, 0 );
+		    // Total proj
+		    projTotal = api
+			.column( 8, { page: 'current'} )
+			.data()
+			.reduce( function (a, b) {
+			    return Math.round(a + b);
+			}, 0 );
+
+		  // update footers
+		    // Update total sal
+		    $( api.column( 4 ).footer() ).html(
+			'$'+pageTotal
+		    );
+	     	// Update total proj
+		    $( api.column( 8 ).footer() ).html(
+			'Total Proj: ' + projTotal
+		    );
+		
+			},
+		"destroy": true,
+		"searching": false,
+		"scrollX": true,
+		"order": [[4, "desc"]],
+		"paging": false,
+		"info": false,
+		"bFilter": false,
+		"bPaginate": false,
+	  "ajax": {
+          "url": "/bb?aa="+aa+"&bb="+bb+"&ee="+ee+"&ff="+ff+"&gg="+gg+"&hh="+hh,
+	    "dataSrc": ""
+	  },
+
+
+	"aoColumns":[
+		{"mData":"dk_pos"},
+		{"mData":"player"},
+		{"mData":"team"},
+		{"mData":"matchup"},
+		{"mData":"dk_sal"},
+		{"mData":"cruz"},
+		{"mData":"Cruz_Value"},
+		{"mData":"DK_Value"},
+		{"mData":"DK_Aggregate"}
+		]
+	} );
+       //   });
+        return false;
+      });
+    });
+
+
+
+// mlb hitters projections datatabless
+$(document).ready( function () {
+	$("a[data-toggle=\"tab\"]").on("shown.bs.tab", function (e) {
+		console.log( 'show tab' );
+		$($.fn.dataTable.tables(true)).DataTable()
+		.columns.adjust()
+		.responsive.recalc();
+	} );
+
+	$('#hitterproj').dataTable( {
+		"scrollX": true,
+		"order": [[14, "desc"]],
+
+		"ajax": {
+			"url": "/hp?",
+			"dataSrc": ""
+			},
+		"aoColumns": [
+			{"mData":"time"},
+			{"mData":"dk_pos"},
+			{"mData":"player"},
+			{"mData":"dk_sal"},
+			{"mData":"team"},
+			{"mData":"matchup"},
+			{"mData":"order"},
+			{"mData":"bats"},
+			{"mData":"vshand"},
+			{"mData":"vsp"},
+			{"mData":"line"},
+			{"mData":"ou"},
+			{"mData":"total"},
+			{"mData":"cruz"},
+			{"mData":"Cruz_Value"},
+			{"mData":"DK_Value"},
+			{"mData":"DK_Aggregate"},
+			{"mData":"DK_Rotogrind"},
+			{"mData":"DK_Sabersim"},
+			{"mData":"DK_Swish"},
+			{"mData":"DK_Numberfire"},
+			{"mData":"DK_Cafe"}
+			]
+		});
+	});
+
+// mlb pitchers projections datatabless
+$(document).ready( function () {
+	$("a[data-toggle=\"tab\"]").on("shown.bs.tab", function (e) {
+		console.log( 'show tab' );
+		$($.fn.dataTable.tables(true)).DataTable()
+		.columns.adjust()
+		.responsive.recalc();
+	} );
+
+	$('#pitcherproj').dataTable( {
+		"paging": false,
+		"scrollX": true,
+		"order": [[9, "desc"]],
+
+		"ajax": {
+			"url": "/pp?",
+			"dataSrc": ""
+			},
+		"aoColumns": [
+			{"mData":"player"},
+			{"mData":"dk_sal"},
+			{"mData":"team"},
+			{"mData":"matchup"},
+			{"mData":"hand"},
+			{"mData":"line"},
+			{"mData":"ou"},
+			{"mData":"total"},
+			{"mData":"cruz"},
+			{"mData":"Cruz_Value"},
+			{"mData":"DK_Value"},
+			{"mData":"DK_Aggregate"},
+			{"mData":"DK_Rotogrind"},
+			{"mData":"DK_Sabersim"},
+			{"mData":"DK_Swish"},
+			{"mData":"DK_Numberfire"},
+			{"mData":"DK_Cafe"}
+			]
+		});
+	});
 
 
 
