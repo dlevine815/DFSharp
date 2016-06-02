@@ -50,6 +50,7 @@
         <li><a href="#set2">NBA</a>
         </li>
     </ul>
+	<p> <b> <font color="green">New Feature: Click the (+) icon next to a player for live analysis! </font></b> </p>
     <div class="tab-content">
         <div class="tab-pane fade active in" id="set1">
             <div class="tabbable">
@@ -112,13 +113,14 @@
 		<table id="mlblineup" class="display" cellspacing="0" width="100%">
 			<thead>
 			    <tr>
+				<th></th>
 				<th>Position</th>
 				<th>Name</th>
 				<th>Team</th>
 				<th>Opp</th>
 				<th>Salary</th>
-				<th>CRUZ</th>
-				<th>Cruz_Value</th>
+				<th>C.R.U.Z.</th>
+				<th>Cruz Value</th>
 				<th>Value (Proj/Sal)</th>
 				<th>Aggregate</th>
 			    </tr>
@@ -126,6 +128,7 @@
 
 			<tfoot>
 			    <tr>
+				<th></th>
 				<th></th>
 				<!--<th colspan="4" style="text-align:center"></th>
 				<th></th>
@@ -149,6 +152,7 @@
 			<table id="hitterproj" class="display" cellspacing="0" width="100%">
 				<thead>
 				    <tr>
+					<th></th>
 					<th>Game Time</th>
 					<th>Pos</th>
 					<th>Player Name</th>
@@ -171,10 +175,14 @@
 					<th>Swish</th>
 					<th>Numberfire</th>
 					<th>FantasyCafe</th>
+					<th>News Sentiment</th>
+					<th>Chars</th>
+					<th>News</th>
 				    </tr>
 				</thead>
 				<tfoot>
 				    <tr>
+					<th></th>
 					<th>Game Time</th>
 					<th>Pos</th>
 					<th>Player Name</th>
@@ -197,6 +205,9 @@
 					<th>Swish</th>
 					<th>Numberfire</th>
 					<th>FantasyCafe</th>
+					<th>News Sentiment</th>
+					<th>Chars</th>
+					<th>News</th>
 				   </tr>
 				</tfoot>
 			    </table>
@@ -206,6 +217,7 @@
 			<table id="pitcherproj" class="display" cellspacing="0" width="100%">
 				<thead>
 				    <tr>
+					<th></th>
 					<th>Player Name</th>
 					<th>Salary</th>
 					<th>Team</th>
@@ -223,10 +235,14 @@
 					<th>Swish</th>
 					<th>Numberfire</th>
 					<th>FantasyCafe</th>
+					<th>News Sentiment</th>
+					<th>Chars</th>
+					<th>News</th>
 				    </tr>
 				</thead>
 				<tfoot>
 				    <tr>
+					<th></th>
 					<th>Player Name</th>
 					<th>Salary</th>
 					<th>Team</th>
@@ -244,6 +260,9 @@
 					<th>Swish</th>
 					<th>Numberfire</th>
 					<th>FantasyCafe</th>
+					<th>News Sentiment</th>
+					<th>Chars</th>
+					<th>News</th>
 				   </tr>
 				</tfoot>
 			    </table>
@@ -455,7 +474,18 @@ Tip: For the lock and exclude fields, don't worry about spelling Giannis Antetok
 </script>
 
 
-  <script type=text/javascript>
+
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+<script src="//code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+<script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.11/js/jquery.dataTables.js"></script>
+
+<script type=text/javascript>
+
+
+// minutes adjust function
     $(function() {
       $('a#cal2').bind('click', function() {
         $.getJSON('/u', {
@@ -466,26 +496,8 @@ Tip: For the lock and exclude fields, don't worry about spelling Giannis Antetok
         return false;
       });
     });
-  </script>
 
-
-
-<!--<script src="//code.jquery.com/jquery-1.10.2.js"></script>-->
-
-
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-
-
-<script src="//code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
-
-
-<!--<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>-->
-
-<script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.11/js/jquery.dataTables.js"></script>
-  <script type=text/javascript>
-
+// nba optimize function
     $(function() {
        $('a#cal').bind('click', function() {
 		var aa = $('input[name="locker"]').val();
@@ -594,11 +606,8 @@ Tip: For the lock and exclude fields, don't worry about spelling Giannis Antetok
         return false;
       });
     });
-  </script>
 
-
-<script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.11/js/jquery.dataTables.js"></script>
-<script type="text/javascript">
+// show tab when clicked
 $(document).ready( function () {
 	$("a[data-toggle=\"tab\"]").on("shown.bs.tab", function (e) {
 		console.log( 'show tab' );
@@ -606,161 +615,9 @@ $(document).ready( function () {
 		.columns.adjust()
 		.responsive.recalc();
 	} );
+} ) ;
 
-	$('#example').dataTable( {
-		"footerCallback": function ( row, data, start, end, display ) {
-            	var api = this.api(), data;
- 
-		    // Total salary
-		    pageTotal = api
-			.column( 4, { page: 'current'} )
-			.data()
-			.reduce( function (a, b) {
-			    return a + b;
-			}, 0 );
-		    // Total proj
-		    projTotal = api
-			.column( 5, { page: 'current'} )
-			.data()
-			.reduce( function (a, b) {
-			    return Math.round(a + b);
-			}, 0 );
-
-		    // Total ceiling
-		    ceilingTotal = api
-			.column( 10, { page: 'current'} )
-			.data()
-			.reduce( function (a, b) {
-			    return Math.round(a + b);
-			}, 0 );
-
-		    // Total floor
-		    floorTotal = api
-			.column( 11, { page: 'current'} )
-			.data()
-			.reduce( function (a, b) {
-			    return Math.round(a + b);
-			}, 0 );
-	 
-		  // update footers
-		    // Update total sal
-		    $( api.column( 4 ).footer() ).html(
-			'$'+pageTotal
-		    );
-	     	// Update total proj
-		    $( api.column( 5 ).footer() ).html(
-			'Total Proj: ' + projTotal
-		    );
-		// Update ceiling
-		    $( api.column( 10 ).footer() ).html(
-			'Ceiling: ' + ceilingTotal
-		    );
-		// Update floor
-		    $( api.column( 11 ).footer() ).html(
-			'Floor: ' + floorTotal
-		    );
-
-
-
-		},
-		"searching": false,
-		"scrollX": true,
-		"order": [[4, "desc"]],
-		"paging": false,
-		"info": false,
-		"bfilter": false,
-		"bPaginate": false,
-	  "ajax": {
-	    "url": "/t?aa=&bb=&ee=&ff=&gg=0",
-	    "dataSrc": ""
-	  },
-	"aoColumns":[
-		{"mData":"numpos"},
-		{"mData":"name"},
-		{"mData":"Team"},
-		{"mData":"Opp"},
-		{"mData":"dk_sal"},
-		//{"mData":"ownership"},
-		{"mData":"DK_Proj"},
-		//{"mData":"DK_Proj_Reg"},
-		{"mData":"dvprank"},
-		{"mData":"min_proj"},
-		{"mData":"dk_per_min"},
-		{"mData":"value"},
-		{"mData":"ceiling"},
-		{"mData":"floor"},
-		{"mData":"usage_5g_avg"},
-				]
-	} );
-} );
-
-
-
-function format ( d ) {
-	$.ajax({url: "/x?aa="+d.name, success: function(result) {
-		return $("#div1").html(result);
-	}});
-};
-
-
-
-function format3 ( d ) {
-
-
-	$(document).ready(function() {
-		var deTable = $('#detailsTable').DataTable( {
-		//return	$('#detailsTable').DataTable( {
-			"ajax": {
-	    		"url": "/x?aa="+d.name,
-	    		"dataSrc": ""
-	  },
-		"aoColumns":[
-		{"mData":"name"},
-		{"mData":"DKP"},
-		{"mData":"Minutes"},
-			]
-	} );
-
-	return deTable.html
-} );
-}
-
-function format2 ( d ) {
-return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+
-        '<tr>'+
-            '<td>Full name:</td>'+
-            '<td>'+d.name+'</td>'+
-        '</tr>'+
-        '<tr>'+
-            '<td>Extension number:</td>'+
-        '</tr>'+
-        '<tr>'+
-            '<td>Extra info:</td>'+
-            '<td>And any further details here (images etc)...</td>'+
-        '</tr>'+
-    '</table>';
-
-}
-	
-
-
-function fnFormatDetails(table_id, html) {
-    var sOut = "<table id=\"exampleTable_" + table_id + "\">";
-    sOut += html;
-    sOut += "</table>";
-    return sOut;
-}
-
-
-
-var iTableCounter = 1;
-    var oTable;
-    var oInnerTable;
-    var TableHtml;
-
-
-
-// Projections DataTable ... 
+// NBA Projections DataTable
 $(document).ready( function () {
 
 	$("a[data-toggle=\"tab\"]").on("shown.bs.tab", function (e) {
@@ -855,38 +712,19 @@ $(document).ready( function () {
 	
 
 
-	// Add event listener for opening and closing details
-	//    $('#example2 tbody').on('click', 'td.details-control', function () {
-	//	var tr = $(this).closest('tr');
-	//	var row = table.row( tr );
-	// 
-	//	if ( row.child.isShown() ) {
-	//	    // This row is already open - close it
-	//	    row.child.hide();
-	//	    tr.removeClass('shown');
-	//	}
-	//	else {
-	//	    // Open this row
-	//	var dra = row.data();
-	//	var datas = $.ajax({url: "/x?aa="+dra.name});
-	//	datas.print()
-	//	    //row.child( format(row.data()) ).show();
-	//	    tr.addClass('shown');
-	//	}
-	//    } );
-
+	
 
  } );
 
 
-
+// not sure? function
 $("ul.nav-tabs a").click(function (e) {
 	e.preventDefault();
 	$(this).tab('show');
 });
     
                
-// MLB OPTIMIZER9
+// MLB OPTIMIZER function/table
  $(function() {
        $('a#mlcal').bind('click', function() {
 		var aa = $('input[name="mllocker"]').val();
@@ -897,27 +735,27 @@ $("ul.nav-tabs a").click(function (e) {
 		var e = document.getElementById("mlb-target-choice");
 		var hh = e.options[e.selectedIndex].value;
 
-	$("a[data-toggle=\"tab\"]").on("shown.bs.tab", function (e) {
-		console.log( 'show tab' );
-		$($.fn.dataTable.tables(true)).DataTable()
-		.columns.adjust()
-		.responsive.recalc();
-	} );
+	//$("a[data-toggle=\"tab\"]").on("shown.bs.tab", function (e) {
+	//	console.log( 'show tab' );
+	//	$($.fn.dataTable.tables(true)).DataTable()
+	//	.columns.adjust()
+	//	.responsive.recalc();
+	//} );
 
 
-	$('#mlblineup').dataTable( {
+	var otable = $('#mlblineup').DataTable( {
 			"footerCallback": function ( row, data, start, end, display ) {
 			var api = this.api(), data;
 		// Total salary
 		    pageTotal = api
-			.column( 4, { page: 'current'} )
+			.column( 5, { page: 'current'} )
 			.data()
 			.reduce( function (a, b) {
 			    return a + b;
 			}, 0 );
 		    // Total proj
 		    projTotal = api
-			.column( 8, { page: 'current'} )
+			.column( 9, { page: 'current'} )
 			.data()
 			.reduce( function (a, b) {
 			    return Math.round(a + b);
@@ -925,11 +763,11 @@ $("ul.nav-tabs a").click(function (e) {
 
 		  // update footers
 		    // Update total sal
-		    $( api.column( 4 ).footer() ).html(
+		    $( api.column( 5 ).footer() ).html(
 			'$'+pageTotal
 		    );
 	     	// Update total proj
-		    $( api.column( 8 ).footer() ).html(
+		    $( api.column( 9 ).footer() ).html(
 			'Total Proj: ' + projTotal
 		    );
 		
@@ -949,6 +787,13 @@ $("ul.nav-tabs a").click(function (e) {
 
 
 	"aoColumns":[
+		{
+			"className": 'details-control',
+			"orderable": false,
+			"data":	null,
+			"defaultContent": ''
+		},
+
 		{"mData":"dk_pos"},
 		{"mData":"player"},
 		{"mData":"team"},
@@ -957,10 +802,28 @@ $("ul.nav-tabs a").click(function (e) {
 		{"mData":"cruz"},
 		{"mData":"Cruz_Value"},
 		{"mData":"DK_Value"},
-		{"mData":"DK_Aggregate"}
+		{"mData":"DK_Aggregate"},
+		{"mData":"news",
+		 "visible": false,
+		 "className": 'none'}
 		]
 	} );
-       //   });
+// Add event listener for opening and closing details
+	    $('#mlblineup tbody').on('click', 'td.details-control', function () {
+		var tr = $(this).closest('tr');
+		var row = otable.row( tr );
+	 
+		if ( row.child.isShown() ) {
+		    // This row is already open - close it
+		    row.child.hide();
+		    tr.removeClass('shown');
+		}
+		else {
+		    // Open this row
+		    row.child( format(row.data()) ).show();
+		    tr.addClass('shown');
+		}
+		});
         return false;
       });
     });
@@ -976,7 +839,7 @@ $(document).ready( function () {
 		.responsive.recalc();
 	} );
 
-	$('#hitterproj').dataTable( {
+	var htable = $('#hitterproj').DataTable( {
 		"scrollX": true,
 		"order": [[14, "desc"]],
 
@@ -985,6 +848,13 @@ $(document).ready( function () {
 			"dataSrc": ""
 			},
 		"aoColumns": [
+			{
+				"className": 'details-control',
+				"orderable": false,
+				"data":	null,
+				"defaultContent": ''
+			},
+
 			{"mData":"time"},
 			{"mData":"dk_pos"},
 			{"mData":"player"},
@@ -1006,10 +876,41 @@ $(document).ready( function () {
 			{"mData":"DK_Sabersim"},
 			{"mData":"DK_Swish"},
 			{"mData":"DK_Numberfire"},
-			{"mData":"DK_Cafe"}
+			{"mData":"DK_Cafe"},
+			{"mData":"sentiment"},
+			{"mData":"chars"},
+			{"mData":"news",
+			"visible": false}
 			]
-		});
+		} );
+
+	// Add event listener for opening and closing details
+	    $('#hitterproj tbody').on('click', 'td.details-control', function () {
+		var tr = $(this).closest('tr');
+		var row = htable.row( tr );
+	 
+		if ( row.child.isShown() ) {
+		    // This row is already open - close it
+		    row.child.hide();
+		    tr.removeClass('shown');
+		}
+		else {
+		    // Open this row
+		    row.child( format(row.data()) ).show();
+		    tr.addClass('shown');
+		}
+	    } );
 	});
+
+function format ( d ) {
+	// d is original data object for the row
+	// return d.news;
+	return '<table cellpadding="5" cellspacing="0" border="0" style="width:480px;">'+
+			'<tr>'+
+				'<td>'+ d.news+ '</td>'+
+			'</tr>'+
+		'</table>';
+}
 
 // mlb pitchers projections datatabless
 $(document).ready( function () {
@@ -1019,17 +920,21 @@ $(document).ready( function () {
 		.columns.adjust()
 		.responsive.recalc();
 	} );
-
-	$('#pitcherproj').dataTable( {
+	var table = $('#pitcherproj').DataTable( {
 		"paging": false,
 		"scrollX": true,
 		"order": [[9, "desc"]],
-
 		"ajax": {
 			"url": "/pp?",
 			"dataSrc": ""
 			},
 		"aoColumns": [
+			{
+				"className": 'details-control',
+				"orderable": false,
+				"data":	null,
+				"defaultContent": ''
+			},
 			{"mData":"player"},
 			{"mData":"dk_sal"},
 			{"mData":"team"},
@@ -1046,12 +951,31 @@ $(document).ready( function () {
 			{"mData":"DK_Sabersim"},
 			{"mData":"DK_Swish"},
 			{"mData":"DK_Numberfire"},
-			{"mData":"DK_Cafe"}
+			{"mData":"DK_Cafe"},
+			{"mData":"sentiment"},
+			{"mData":"chars"},
+			{"mData":"news",
+			"visible": false}
 			]
-		});
+		} );
+
+	// Add event listener for opening and closing details
+	    $('#pitcherproj tbody').on('click', 'td.details-control', function () {
+		var tr = $(this).closest('tr');
+		var row = table.row( tr );
+	 
+		if ( row.child.isShown() ) {
+		    // This row is already open - close it
+		    row.child.hide();
+		    tr.removeClass('shown');
+		}
+		else {
+		    // Open this row
+		    row.child( format(row.data()) ).show();
+		    tr.addClass('shown');
+		}
+	    } );
 	});
-
-
 
 
 </script>
